@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "578743923308",
+    "project_id": "livestockapp-50d71",
+    "storage_bucket": "livestockapp-50d71.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:578743923308:android:f98bacb86071d2dee4de49",
+        "android_client_info": {
+          "package_name": "com.example.capstoneproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "578743923308-0d5nif0tkoofrceb26dou962gc3f4a6e.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.capstoneproject",
+            "certificate_hash": "bed02aadbcc48c667dc6ac6bdc0223dd432b3d15"
+          }
+        },
+        {
+          "client_id": "578743923308-cic2mbmkgdiv8q7r2hnflvvr8qbgn341.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDtHkPqKGGqUMVpkSky-Eh8u9Z6PlSJJ34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "578743923308-cic2mbmkgdiv8q7r2hnflvvr8qbgn341.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "578743923308-4ir51r8cjqbdi0nn9ptp2as4vess5jq3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.capstoneproject"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
