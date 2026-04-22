@@ -144,6 +144,16 @@ class _UserLoginPageState extends State<UserLoginPage> {
                               password: passwordController.text.trim(),
                             );
 
+                            // Enforce email verification
+                            if (!userCredential.user!.emailVerified) {
+                              // If they haven't verified, send them to the VerifyEmailPage
+                              settingsProvider.setIsSigningUp(true);
+                              if (mounted) {
+                                Navigator.pop(context); // Go back to root (AuthGate)
+                              }
+                              return;
+                            }
+
                             final userDoc = await FirebaseFirestore.instance
                                 .collection('users')
                                 .doc(userCredential.user!.uid)
