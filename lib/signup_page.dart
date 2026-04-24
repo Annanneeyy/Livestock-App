@@ -93,13 +93,20 @@ class _SignUpPageState extends State<SignUpPage> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // VerifyEmailPage handles sending the email verification in its initState
-      // to avoid triggering 'auth/too-many-requests' limits from double-sending.
+      // Send verification email
+      await userCredential.user!.sendEmailVerification();
 
+      // SUCCESS POPUP
+      // AuthGate will handle the transition, but since we are now holding them at VerifyEmailPage,
+      // we can inform them here.
       if (mounted) {
-        // Pop the current stacked routes (Signup, Login) so the root AuthGate 
-        // takes over and automatically displays the VerifyEmailPage.
-        Navigator.of(context).popUntil((route) => route.isFirst);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content:
+                Text("✅ Account created! Please check your email to verify."),
+            duration: Duration(seconds: 4),
+          ),
+        );
       }
     } on FirebaseAuthException catch (e) {
       settingsProvider.setIsSigningUp(false); // Reset flag on error
@@ -107,14 +114,6 @@ class _SignUpPageState extends State<SignUpPage> {
         SnackBar(
           backgroundColor: Colors.red,
           content: Text("❌ ${e.message}"),
-        ),
-      );
-    } catch (e) {
-      settingsProvider.setIsSigningUp(false); // Reset flag on error
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text("❌ Error: $e"),
         ),
       );
     }
