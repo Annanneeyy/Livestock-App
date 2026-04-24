@@ -205,7 +205,7 @@ CREATE TABLE health_guidelines (
 CREATE TABLE feeding_info (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name            TEXT NOT NULL,
-  category        TEXT NOT NULL,   -- 'Baktin' | 'Anayon' | 'Lapaon' | 'Letchonon'
+  category        TEXT NOT NULL,   -- 'Baktin' | 'Anayon' | 'Lapaon' | 'Lechonon'
   description     TEXT,
   feed_type       TEXT,
   feeding_schedule    TEXT,
