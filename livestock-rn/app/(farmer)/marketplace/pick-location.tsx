@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -15,6 +15,15 @@ const INITIAL_REGION = {
 
 export default function PickLocationScreen() {
   const router = useRouter();
+  const formState = useLocalSearchParams<{
+    _name?: string;
+    _category?: string;
+    _price?: string;
+    _description?: string;
+    _contact?: string;
+    _images?: string;
+    editId?: string;
+  }>();
   const [selectedLocation, setSelectedLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -76,6 +85,14 @@ export default function PickLocationScreen() {
         lat: selectedLocation.latitude.toString(),
         lng: selectedLocation.longitude.toString(),
         locationText,
+        // Restore form state
+        _name: formState._name || '',
+        _category: formState._category || '',
+        _price: formState._price || '',
+        _description: formState._description || '',
+        _contact: formState._contact || '',
+        _images: formState._images || '[]',
+        editId: formState.editId || '',
       },
     });
   };

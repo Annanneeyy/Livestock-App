@@ -19,25 +19,32 @@ export default function CreatePostScreen() {
     lat?: string;
     lng?: string;
     locationText?: string;
+    // Restored form state after returning from pick-location
+    _name?: string;
+    _category?: string;
+    _price?: string;
+    _description?: string;
+    _contact?: string;
+    _images?: string;
   }>();
 
   const isEditing = !!params.editId;
 
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState<string>('');
-  const [price, setPrice] = useState('');
-  const [description, setDescription] = useState('');
-  const [contact, setContact] = useState('');
-  const [locationText, setLocationText] = useState('');
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [images, setImages] = useState<string[]>([]);
+  const [name, setName] = useState(params._name || '');
+  const [category, setCategory] = useState<string>(params._category || '');
+  const [price, setPrice] = useState(params._price || '');
+  const [description, setDescription] = useState(params._description || '');
+  const [contact, setContact] = useState(params._contact || '');
+  const [locationText, setLocationText] = useState(params.locationText || '');
+  const [latitude, setLatitude] = useState<number | null>(params.lat ? parseFloat(params.lat) : null);
+  const [longitude, setLongitude] = useState<number | null>(params.lng ? parseFloat(params.lng) : null);
+  const [images, setImages] = useState<string[]>(params._images ? JSON.parse(params._images) : []);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(false);
 
   // Load existing post data when editing
   useEffect(() => {
-    if (params.editId) {
+    if (params.editId && !params._name) {
       setInitialLoading(true);
       supabase
         .from('livestock')
@@ -62,13 +69,6 @@ export default function CreatePostScreen() {
         });
     }
   }, [params.editId]);
-
-  // Update location when returning from pick-location screen
-  useEffect(() => {
-    if (params.lat) setLatitude(parseFloat(params.lat));
-    if (params.lng) setLongitude(parseFloat(params.lng));
-    if (params.locationText) setLocationText(params.locationText);
-  }, [params.lat, params.lng, params.locationText]);
 
   const pickImages = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -255,7 +255,18 @@ export default function CreatePostScreen() {
           <Text className="text-sm font-medium text-gray-700 mb-1">Location</Text>
           <TouchableOpacity
             className="border border-gray-300 rounded-lg px-4 py-3 flex-row items-center justify-between"
-            onPress={() => router.push('/(farmer)/marketplace/pick-location')}
+            onPress={() => router.push({
+              pathname: '/(farmer)/marketplace/pick-location',
+              params: {
+                _name: name,
+                _category: category,
+                _price: price,
+                _description: description,
+                _contact: contact,
+                _images: JSON.stringify(images),
+                editId: params.editId || '',
+              },
+            })}
           >
             <Text className={locationText ? 'text-gray-900' : 'text-gray-400'}>
               {locationText || 'Pick location on map'}
