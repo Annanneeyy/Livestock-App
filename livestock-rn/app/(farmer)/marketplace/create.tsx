@@ -107,7 +107,7 @@ export default function CreatePostScreen() {
           latitude,
           longitude,
           location_text: locationText.trim() || null,
-        });
+        }, images);
         Alert.alert('Success', 'Listing updated!', [
           { text: 'OK', onPress: () => router.back() },
         ]);

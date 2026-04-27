@@ -144,7 +144,8 @@ export async function createLivestock(
 
 export async function updateLivestock(
   id: string,
-  updates: Partial<Omit<Livestock, 'id' | 'created_at' | 'seller' | 'images'>>
+  updates: Partial<Omit<Livestock, 'id' | 'created_at' | 'seller' | 'images'>>,
+  newImageUris?: string[]
 ) {
   const { error } = await supabase
     .from('livestock')
@@ -152,6 +153,71 @@ export async function updateLivestock(
     .eq('id', id);
 
   if (error) throw error;
+
+  // Handle image updates if new images provided
+  if (newImageUris) {
+    // Delete old images from storage and database
+    const { data: oldImages } = await supabase
+      .from('livestock_images')
+      .select('image_url')
+      .eq('livestock_id', id);
+
+    if (oldImages) {
+      const paths = oldImages.map((img) => {
+        const url = new URL(img.image_url);
+        return url.pathname.split('/livestock-images/')[1];
+      }).filter(Boolean);
+
+      if (paths.length > 0) {
+        await supabase.storage.from('livestock-images').remove(paths);
+      }
+    }
+
+    // Delete old image records
+    await supabase.from('livestock_images').delete().eq('livestock_id', id);
+
+    // Upload new images
+    for (let i = 0; i < newImageUris.length; i++) {
+      const uri = newImageUris[i];
+
+      // Skip URLs that are already in Supabase (existing images the user kept)
+      if (uri.startsWith('http')) {
+        await supabase.from('livestock_images').insert({
+          livestock_id: id,
+          image_url: uri,
+          sort_order: i,
+        });
+        continue;
+      }
+
+      const fileName = `${id}/${Date.now()}_${i}.jpg`;
+
+      const base64 = await readAsStringAsync(uri, {
+        encoding: EncodingType.Base64,
+      });
+
+      const { error: uploadError } = await supabase.storage
+        .from('livestock-images')
+        .upload(fileName, decode(base64), {
+          contentType: 'image/jpeg',
+        });
+
+      if (uploadError) {
+        console.error('Image upload error:', uploadError.message);
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('livestock-images')
+        .getPublicUrl(fileName);
+
+      await supabase.from('livestock_images').insert({
+        livestock_id: id,
+        image_url: urlData.publicUrl,
+        sort_order: i,
+      });
+    }
+  }
 }
 
 export async function deleteLivestock(id: string) {
