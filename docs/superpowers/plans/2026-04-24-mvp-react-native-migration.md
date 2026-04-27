@@ -1901,14 +1901,14 @@ git commit -m "feat: add login, sign up, and email verification screens"
 
 ---
 
-## Phase 1: Marketplace
+## Phase 1: Marketplace ✅ COMPLETED (2026-04-27)
 
 ### Task 6: Livestock CRUD Hooks
 
 **Files:**
 - Create: `livestock-rn/lib/hooks/useLivestock.ts`
 
-- [ ] **Step 1: Create livestock data hooks**
+- [x] **Step 1: Create livestock data hooks**
 
 Create `lib/hooks/useLivestock.ts`:
 
@@ -2106,7 +2106,7 @@ export async function deleteComment(commentId: string) {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add lib/hooks/useLivestock.ts
@@ -2120,7 +2120,7 @@ git commit -m "feat: add livestock CRUD hooks with image upload to Supabase Stor
 **Files:**
 - Create: `livestock-rn/components/LivestockCard.tsx`
 
-- [ ] **Step 1: Build the card component**
+- [x] **Step 1: Build the card component**
 
 Create `components/LivestockCard.tsx`:
 
@@ -2187,7 +2187,7 @@ export default function LivestockCard({ item }: Props) {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add components/LivestockCard.tsx
@@ -2201,7 +2201,7 @@ git commit -m "feat: add LivestockCard component for marketplace list"
 **Files:**
 - Modify: `livestock-rn/app/(farmer)/marketplace.tsx`
 
-- [ ] **Step 1: Build marketplace list with search and filters**
+- [x] **Step 1: Build marketplace list with search and filters**
 
 Replace `app/(farmer)/marketplace.tsx`:
 
@@ -2331,7 +2331,7 @@ export default function MarketplaceScreen() {
 }
 ```
 
-- [ ] **Step 2: Verify the marketplace screen renders**
+- [x] **Step 2: Verify the marketplace screen renders**
 
 ```bash
 npx expo start
@@ -2339,7 +2339,7 @@ npx expo start
 
 Expected: Log in as a farmer, tap Marketplace tab. Screen shows search bar, category filters, "My Posts" toggle, empty listing message, and a green FAB button.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add app/(farmer)/marketplace.tsx
@@ -2354,7 +2354,7 @@ git commit -m "feat: build marketplace list screen with search, category filter,
 - Create: `livestock-rn/app/(farmer)/marketplace/create.tsx`
 - Create: `livestock-rn/app/(farmer)/marketplace/pick-location.tsx`
 
-- [ ] **Step 1: Build post creation form**
+- [x] **Step 1: Build post creation form**
 
 Create `app/(farmer)/marketplace/create.tsx`:
 
@@ -2648,7 +2648,7 @@ export default function CreatePostScreen() {
 }
 ```
 
-- [ ] **Step 2: Build location picker screen**
+- [x] **Step 2: Build location picker screen**
 
 Create `app/(farmer)/marketplace/pick-location.tsx`:
 
@@ -2786,7 +2786,7 @@ export default function PickLocationScreen() {
 }
 ```
 
-- [ ] **Step 3: Verify post creation flow**
+- [x] **Step 3: Verify post creation flow**
 
 ```bash
 npx expo start
@@ -2794,7 +2794,7 @@ npx expo start
 
 Test: Marketplace → FAB (+) → fill form → pick images → pick location → submit. Check Supabase Dashboard: `livestock` table has new row, `livestock_images` has image URLs, Storage bucket has uploaded files.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/(farmer)/marketplace/
@@ -2810,7 +2810,7 @@ git commit -m "feat: add post creation form with image upload and map-based loca
 - Create: `livestock-rn/components/ImageGallery.tsx`
 - Create: `livestock-rn/components/CommentSection.tsx`
 
-- [ ] **Step 1: Build image gallery component**
+- [x] **Step 1: Build image gallery component**
 
 Create `components/ImageGallery.tsx`:
 
@@ -2873,7 +2873,7 @@ export default function ImageGallery({ images }: Props) {
 }
 ```
 
-- [ ] **Step 2: Build comment section component**
+- [x] **Step 2: Build comment section component**
 
 Create `components/CommentSection.tsx`:
 
@@ -2968,7 +2968,7 @@ export default function CommentSection({ livestockId, userId, comments, onRefres
 }
 ```
 
-- [ ] **Step 3: Build post detail screen**
+- [x] **Step 3: Build post detail screen**
 
 Create `app/(farmer)/marketplace/[id].tsx`:
 
@@ -3112,11 +3112,11 @@ export default function PostDetailScreen() {
 }
 ```
 
-- [ ] **Step 4: Verify the full marketplace flow**
+- [x] **Step 4: Verify the full marketplace flow**
 
 Test: Create a post → see it in the list → tap to see detail → add a comment → delete the comment. Check Supabase Dashboard to verify all data.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add app/(farmer)/marketplace/[id].tsx components/ImageGallery.tsx components/CommentSection.tsx
