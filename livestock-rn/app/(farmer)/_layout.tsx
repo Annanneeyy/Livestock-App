@@ -54,8 +54,12 @@ export default function FarmerLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="chatbubbles" size={size} color={color} />
           ),
-          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
-          tabBarBadgeStyle: { backgroundColor: '#D32F2F' },
+        }}
+      />
+      <Tabs.Screen
+        name="notifications/index"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
