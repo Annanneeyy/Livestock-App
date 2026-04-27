@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-export default function GuidelinesLayout() {
+export default function ChatsLayout() {
   return (
     <Stack
       screenOptions={{
@@ -10,7 +10,18 @@ export default function GuidelinesLayout() {
         headerBackTitleVisible: false,
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Guidelines' }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: 'Messages',
+        }}
+      />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          title: 'Chat',
+        }}
+      />
     </Stack>
   );
 }

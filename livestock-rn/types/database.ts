@@ -70,6 +70,7 @@ export interface Chat {
   created_at: string;
   // Joined
   other_user?: Profile;
+  unread_count?: number;
 }
 
 export interface Message {
@@ -77,6 +78,7 @@ export interface Message {
   chat_id: string;
   sender_id: string;
   text: string;
+  is_read: boolean;
   created_at: string;
   // Joined
   sender?: Profile;
