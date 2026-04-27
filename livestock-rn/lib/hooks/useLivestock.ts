@@ -111,32 +111,39 @@ export async function createLivestock(
   // Upload images to storage and insert image records
   for (let i = 0; i < imageUris.length; i++) {
     const uri = imageUris[i];
-    const fileName = `${livestockId}/${Date.now()}_${i}.jpg`;
+    if (!uri) continue;
 
-    const base64 = await readAsStringAsync(uri, {
-      encoding: EncodingType.Base64,
-    });
+    try {
+      const fileName = `${livestockId}/${Date.now()}_${i}.jpg`;
 
-    const { error: uploadError } = await supabase.storage
-      .from('livestock-images')
-      .upload(fileName, decode(base64), {
-        contentType: 'image/jpeg',
+      const base64 = await readAsStringAsync(uri, {
+        encoding: EncodingType.Base64,
       });
 
-    if (uploadError) {
-      console.error('Image upload error:', uploadError.message);
+      const { error: uploadError } = await supabase.storage
+        .from('livestock-images')
+        .upload(fileName, decode(base64), {
+          contentType: 'image/jpeg',
+        });
+
+      if (uploadError) {
+        console.error('Image upload error:', uploadError.message);
+        continue;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from('livestock-images')
+        .getPublicUrl(fileName);
+
+      await supabase.from('livestock_images').insert({
+        livestock_id: livestockId,
+        image_url: urlData.publicUrl,
+        sort_order: i,
+      });
+    } catch (imgErr: any) {
+      console.error(`Image ${i} upload failed:`, imgErr.message);
       continue;
     }
-
-    const { data: urlData } = supabase.storage
-      .from('livestock-images')
-      .getPublicUrl(fileName);
-
-    await supabase.from('livestock_images').insert({
-      livestock_id: livestockId,
-      image_url: urlData.publicUrl,
-      sort_order: i,
-    });
   }
 
   return livestockId;

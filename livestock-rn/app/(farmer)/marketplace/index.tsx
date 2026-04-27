@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import {
   View, Text, TextInput, FlatList, TouchableOpacity, ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLivestockList } from '../../../lib/hooks/useLivestock';
 import { useAuth } from '../../../lib/hooks/useAuth';
@@ -25,6 +25,13 @@ export default function MarketplaceScreen() {
   }), [selectedCategory, myPostsOnly, search, user?.id]);
 
   const { data, loading, refetch } = useLivestockList(filters);
+
+  // Refetch when screen comes back into focus (e.g. after creating/editing a post)
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
 
   return (
     <View className="flex-1 bg-gray-50">

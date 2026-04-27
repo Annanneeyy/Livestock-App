@@ -109,10 +109,13 @@ export default function CreatePostScreen() {
           location_text: locationText.trim() || null,
         }, images);
         Alert.alert('Success', 'Listing updated!', [
-          { text: 'OK', onPress: () => router.back() },
+          { text: 'OK', onPress: () => {
+            // Go back to post detail, which will refetch
+            router.back();
+          }},
         ]);
       } else {
-        await createLivestock(
+        const newId = await createLivestock(
           {
             seller_id: user.id,
             name: name.trim(),
@@ -128,7 +131,10 @@ export default function CreatePostScreen() {
           images
         );
         Alert.alert('Success', 'Livestock posted!', [
-          { text: 'OK', onPress: () => router.back() },
+          { text: 'OK', onPress: () => {
+            // Navigate to the marketplace list, replacing create screen from stack
+            router.dismiss();
+          }},
         ]);
       }
     } catch (error: any) {
