@@ -72,13 +72,15 @@ export function useNotifications() {
   useEffect(() => {
     fetchNotifications();
 
-    const channelId = `notifications_changes_${Date.now()}`;
+    const channelId = `notifications_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
       .channel(channelId)
       .on('postgres_changes', {
         event: '*',
         schema: 'public',
         table: 'notifications'
+        // RLS will handle user-specific data, but we can add filter if needed
+        // filter: `user_id=eq.${userId}` // We'd need userId here
       }, () => {
         fetchNotifications();
       })

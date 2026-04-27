@@ -83,8 +83,7 @@ export function useChatList() {
   useEffect(() => {
     fetchChats();
 
-    // Subscribe to chat updates with a unique channel name to avoid subscription conflicts
-    const channelId = `chat_list_${Date.now()}`;
+    const channelId = `chat_list_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
       .channel(channelId)
       .on('postgres_changes', { 
@@ -99,7 +98,7 @@ export function useChatList() {
         schema: 'public',
         table: 'messages'
       }, () => {
-        fetchChats(); // Update last message and unread count
+        fetchChats();
       })
       .subscribe();
 
@@ -213,10 +212,9 @@ export function useChatMessages(chatId: string | null) {
     fetchMessages();
     markAsRead();
 
-    // Subscribe to new messages in this chat with a unique channel name
-    const channelName = `chat_room_${chatId}_${Date.now()}`;
+    const channelId = `chat_room_${chatId}_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
-      .channel(channelName)
+      .channel(channelId)
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
@@ -304,7 +302,7 @@ export function useUnreadCount() {
   useEffect(() => {
     fetchUnreadCount();
 
-    const channelId = `global_unread_count_${Date.now()}`;
+    const channelId = `unread_count_${Math.random().toString(36).substring(7)}`;
     const channel = supabase
       .channel(channelId)
       .on('postgres_changes', {
