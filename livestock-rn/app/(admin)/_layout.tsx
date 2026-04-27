@@ -27,6 +27,7 @@ export default function AdminLayout() {
         name="manage"
         options={{
           title: 'Manage',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="create" size={size} color={color} />
           ),

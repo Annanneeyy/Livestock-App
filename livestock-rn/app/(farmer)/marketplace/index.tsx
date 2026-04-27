@@ -4,10 +4,10 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useLivestockList } from '../../lib/hooks/useLivestock';
-import { useAuth } from '../../lib/hooks/useAuth';
-import LivestockCard from '../../components/LivestockCard';
-import { LIVESTOCK_CATEGORIES } from '../../constants/theme';
+import { useLivestockList } from '../../../lib/hooks/useLivestock';
+import { useAuth } from '../../../lib/hooks/useAuth';
+import LivestockCard from '../../../components/LivestockCard';
+import { LIVESTOCK_CATEGORIES } from '../../../constants/theme';
 
 const FILTERS = ['All', ...LIVESTOCK_CATEGORIES] as const;
 

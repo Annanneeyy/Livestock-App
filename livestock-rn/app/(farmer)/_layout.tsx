@@ -25,6 +25,7 @@ export default function FarmerLayout() {
         name="marketplace"
         options={{
           title: 'Marketplace',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="storefront" size={size} color={color} />
           ),
@@ -34,6 +35,7 @@ export default function FarmerLayout() {
         name="guidelines"
         options={{
           title: 'Guidelines',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="book" size={size} color={color} />
           ),
