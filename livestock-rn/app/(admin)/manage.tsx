@@ -1,8 +1,57 @@
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+
+const SECTIONS = [
+  {
+    title: 'Announcements',
+    subtitle: 'Post and manage announcements',
+    icon: 'megaphone' as const,
+    color: '#2563EB',
+    route: '/(admin)/manage/announcements',
+  },
+  {
+    title: 'Health Guidelines',
+    subtitle: 'Manage disease and health information',
+    icon: 'medkit' as const,
+    color: '#DC2626',
+    route: '/(admin)/manage/health',
+  },
+  {
+    title: 'Feeding Information',
+    subtitle: 'Manage feeding schedules and nutrition',
+    icon: 'nutrition' as const,
+    color: '#D97706',
+    route: '/(admin)/manage/feeding',
+  },
+];
+
 export default function ManageScreen() {
+  const router = useRouter();
+
   return (
-    <View className="flex-1 items-center justify-center">
-      <Text>Content Management coming soon</Text>
+    <View className="flex-1 bg-gray-50 p-4">
+      <Text className="text-xl font-bold text-green-900 mb-4">Content Management</Text>
+
+      {SECTIONS.map((section) => (
+        <TouchableOpacity
+          key={section.title}
+          className="bg-white rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100"
+          onPress={() => router.push(section.route as any)}
+        >
+          <View
+            className="rounded-lg p-3 mr-4"
+            style={{ backgroundColor: `${section.color}15` }}
+          >
+            <Ionicons name={section.icon} size={28} color={section.color} />
+          </View>
+          <View className="flex-1">
+            <Text className="text-lg font-semibold text-gray-900">{section.title}</Text>
+            <Text className="text-sm text-gray-500">{section.subtitle}</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+        </TouchableOpacity>
+      ))}
     </View>
   );
 }

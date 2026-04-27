@@ -3125,7 +3125,7 @@ git commit -m "feat: add post detail screen with image gallery and comments"
 
 ---
 
-## Phase 2: Geospatial Map
+## Phase 2: Geospatial Map ✅ COMPLETED (2026-04-27)
 
 ### Task 11: Shared Map Component
 
@@ -3133,7 +3133,7 @@ git commit -m "feat: add post detail screen with image gallery and comments"
 - Create: `livestock-rn/components/LivestockMap.tsx`
 - Create: `livestock-rn/components/MapLegend.tsx`
 
-- [ ] **Step 1: Build the map legend component**
+- [x] **Step 1: Build the map legend component**
 
 Create `components/MapLegend.tsx`:
 
@@ -3176,7 +3176,7 @@ export default function MapLegend() {
 }
 ```
 
-- [ ] **Step 2: Build the shared map component**
+- [x] **Step 2: Build the shared map component**
 
 Create `components/LivestockMap.tsx`:
 
@@ -3299,7 +3299,7 @@ export default function LivestockMap() {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add components/LivestockMap.tsx components/MapLegend.tsx
@@ -3314,7 +3314,7 @@ git commit -m "feat: add shared LivestockMap component with ESRI satellite tiles
 - Modify: `livestock-rn/app/(farmer)/home.tsx`
 - Modify: `livestock-rn/app/(admin)/map.tsx`
 
-- [ ] **Step 1: Update farmer home screen**
+- [x] **Step 1: Update farmer home screen**
 
 Replace `app/(farmer)/home.tsx`:
 
@@ -3326,7 +3326,7 @@ export default function HomeScreen() {
 }
 ```
 
-- [ ] **Step 2: Update admin map screen**
+- [x] **Step 2: Update admin map screen**
 
 Replace `app/(admin)/map.tsx`:
 
@@ -3338,7 +3338,7 @@ export default function AdminMapScreen() {
 }
 ```
 
-- [ ] **Step 3: Verify map renders with markers**
+- [x] **Step 3: Verify map renders with markers**
 
 ```bash
 npx expo start
@@ -3346,7 +3346,7 @@ npx expo start
 
 Expected: Home tab shows satellite map centered on Quezon, Bukidnon. Any livestock posts with lat/lng show as emoji markers. Tapping a marker shows callout with name/price. Tapping callout navigates to post detail.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/(farmer)/home.tsx app/(admin)/map.tsx
@@ -3355,7 +3355,7 @@ git commit -m "feat: wire up farmer and admin map screens using shared Livestock
 
 ---
 
-## Phase 3: Guidelines Content
+## Phase 3: Guidelines Content ✅ COMPLETED (2026-04-27)
 
 ### Task 13: Health Guidelines Screens
 
@@ -3364,7 +3364,7 @@ git commit -m "feat: wire up farmer and admin map screens using shared Livestock
 - Create: `livestock-rn/app/(farmer)/guidelines/health/index.tsx`
 - Create: `livestock-rn/app/(farmer)/guidelines/health/[id].tsx`
 
-- [ ] **Step 1: Build guidelines hub**
+- [x] **Step 1: Build guidelines hub**
 
 Replace `app/(farmer)/guidelines.tsx`:
 
@@ -3416,7 +3416,7 @@ export default function GuidelinesScreen() {
 }
 ```
 
-- [ ] **Step 2: Build health guidelines list**
+- [x] **Step 2: Build health guidelines list**
 
 Create `app/(farmer)/guidelines/health/index.tsx`:
 
@@ -3506,7 +3506,7 @@ export default function HealthGuidelinesListScreen() {
 }
 ```
 
-- [ ] **Step 3: Build health guideline detail**
+- [x] **Step 3: Build health guideline detail**
 
 Create `app/(farmer)/guidelines/health/[id].tsx`:
 
@@ -3579,7 +3579,7 @@ export default function HealthGuidelineDetailScreen() {
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add app/(farmer)/guidelines.tsx app/(farmer)/guidelines/
@@ -3594,7 +3594,7 @@ git commit -m "feat: add guidelines hub, health guidelines list, and health guid
 - Create: `livestock-rn/app/(farmer)/guidelines/feeding/index.tsx`
 - Create: `livestock-rn/app/(farmer)/guidelines/feeding/[id].tsx`
 
-- [ ] **Step 1: Build feeding categories/list screen**
+- [x] **Step 1: Build feeding categories/list screen**
 
 Create `app/(farmer)/guidelines/feeding/index.tsx`:
 
@@ -3693,7 +3693,7 @@ export default function FeedingListScreen() {
 }
 ```
 
-- [ ] **Step 2: Build feeding detail screen**
+- [x] **Step 2: Build feeding detail screen**
 
 Create `app/(farmer)/guidelines/feeding/[id].tsx`:
 
@@ -3775,7 +3775,7 @@ export default function FeedingDetailScreen() {
 }
 ```
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add app/(farmer)/guidelines/feeding/
@@ -3797,7 +3797,7 @@ git commit -m "feat: add feeding info category list and detail screens"
 
 This task creates 7 screens. The patterns are repetitive (list + form for each content type), so the code follows the same structure for announcements, health guidelines, and feeding info. See the spec for field details per type.
 
-- [ ] **Step 1: Build admin manage hub**
+- [x] **Step 1: Build admin manage hub**
 
 Replace `app/(admin)/manage.tsx`:
 
@@ -3861,7 +3861,7 @@ export default function ManageScreen() {
 }
 ```
 
-- [ ] **Step 2: Build announcements list and form**
+- [x] **Step 2: Build announcements list and form**
 
 Create `app/(admin)/manage/announcements/index.tsx`:
 - Fetch with `supabase.from('announcements').select('*').order('created_at', { ascending: false })`
@@ -3880,7 +3880,7 @@ Create `app/(admin)/manage/announcements/form.tsx`:
 - On success: `Alert.alert('Success', ...)` then `router.back()`
 - Follow the same form pattern as `app/(farmer)/marketplace/create.tsx` (Task 9)
 
-- [ ] **Step 3: Build health guidelines list and form**
+- [x] **Step 3: Build health guidelines list and form**
 
 Create `app/(admin)/manage/health/index.tsx`:
 - Same list pattern as announcements list above
@@ -3893,7 +3893,7 @@ Create `app/(admin)/manage/health/form.tsx`:
 - Fields: `disease` (TextInput, required), `symptoms` (TextInput multiline), `treatment` (TextInput multiline), `prevention` (TextInput multiline)
 - Insert/update to `health_guidelines` table with `posted_by: user.id`
 
-- [ ] **Step 4: Build feeding info list and form**
+- [x] **Step 4: Build feeding info list and form**
 
 Create `app/(admin)/manage/feeding/index.tsx`:
 - Same list pattern as announcements list, plus category filter tabs (use `FEEDING_CATEGORIES` from `constants/theme.ts`)
@@ -3905,11 +3905,11 @@ Create `app/(admin)/manage/feeding/form.tsx`:
 - Fields: `name` (TextInput, required), `category` (picker buttons from `FEEDING_CATEGORIES`, required), `description` (TextInput multiline), `feed_type` (TextInput), `feeding_schedule` (TextInput multiline), `nutritional_requirement` (TextInput multiline), `feeding_best_practices` (TextInput multiline), `supplements_additives` (TextInput multiline)
 - Insert/update to `feeding_info` table with `posted_by: user.id`
 
-- [ ] **Step 5: Verify admin can CRUD all content types**
+- [x] **Step 5: Verify admin can CRUD all content types**
 
 Log in as admin → Manage tab → test create/edit/delete for announcements, health guidelines, and feeding info. Verify data appears in Supabase Dashboard and in the farmer-side guidelines screens.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add app/(admin)/manage.tsx app/(admin)/manage/
@@ -3918,14 +3918,14 @@ git commit -m "feat: add admin content management screens for announcements, hea
 
 ---
 
-## Phase 4: Migration & Profile
+## Phase 4: Migration & Profile ✅ PARTIALLY COMPLETED (2026-04-27) — Profile screen done, migration script pending
 
 ### Task 16: Profile Screen
 
 **Files:**
 - Modify: `livestock-rn/app/(farmer)/profile.tsx`
 
-- [ ] **Step 1: Build profile view/edit screen**
+- [x] **Step 1: Build profile view/edit screen**
 
 Replace `app/(farmer)/profile.tsx`:
 
@@ -4154,11 +4154,11 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 ```
 
-- [ ] **Step 2: Verify profile screen**
+- [x] **Step 2: Verify profile screen**
 
 Test: view profile, edit fields, save. Upload avatar. Sign out.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add app/(farmer)/profile.tsx

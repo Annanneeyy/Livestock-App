@@ -1,8 +1,5 @@
-import { View, Text } from 'react-native';
+import LivestockMap from '../../components/LivestockMap';
+
 export default function HomeScreen() {
-  return (
-    <View className="flex-1 items-center justify-center">
-      <Text>Map coming soon</Text>
-    </View>
-  );
+  return <LivestockMap />;
 }
