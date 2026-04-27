@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
 
 export default function ChatsLayout() {
   return (
@@ -8,6 +9,7 @@ export default function ChatsLayout() {
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
         headerBackTitleVisible: false,
+        headerRight: () => <NotificationBell />,
       }}
     >
       <Stack.Screen

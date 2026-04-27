@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
 
 export default function MarketplaceLayout() {
   return (
@@ -7,7 +8,8 @@ export default function MarketplaceLayout() {
         headerStyle: { backgroundColor: '#2E7D32' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
-        headerBackTitleVisible: false, // Fix: Hide the "[id]" or "Back" text on Android/iOS
+        headerBackTitleVisible: false,
+        headerRight: () => <NotificationBell />,
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Marketplace' }} />

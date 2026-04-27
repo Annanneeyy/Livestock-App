@@ -78,6 +78,7 @@ export interface Message {
   chat_id: string;
   sender_id: string;
   text: string;
+  image_url: string | null;
   is_read: boolean;
   created_at: string;
   // Joined

@@ -20,7 +20,15 @@ export function useAuth() {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Auth session error:', error.message);
+        // If there's an error (like invalid refresh token), ensure local storage is cleared
+        supabase.auth.signOut().catch(() => {}); 
+        setState({ session: null, user: null, profile: null, loading: false });
+        return;
+      }
+
       if (session?.user) {
         fetchProfile(session.user.id).then((profile) => {
           setState({ session, user: session.user, profile, loading: false });
@@ -28,12 +36,19 @@ export function useAuth() {
       } else {
         setState({ session: null, user: null, profile: null, loading: false });
       }
+    }).catch(err => {
+      console.error('Unexpected auth error:', err);
+      setState({ session: null, user: null, profile: null, loading: false });
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        if (session?.user) {
+      async (event, session) => {
+        console.log('Auth event:', event);
+        
+        if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
+          setState({ session: null, user: null, profile: null, loading: false });
+        } else if (session?.user) {
           const profile = await fetchProfile(session.user.id);
           setState({ session, user: session.user, profile, loading: false });
         } else {

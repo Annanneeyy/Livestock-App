@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
+import { decode } from 'base64-arraybuffer';
 import { supabase } from '../supabase';
 import { Chat, Message, Profile } from '../../types/database';
 
@@ -12,8 +14,9 @@ export function useChatList() {
 
   const fetchChats = useCallback(async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError || !userData?.user) return;
+      const user = userData.user;
 
       // 1. Fetch chats where user is participant
       const { data, error } = await supabase
@@ -123,7 +126,7 @@ export function useChatMessages(chatId: string | null) {
         .from('messages')
         .select('*, sender:sender_id(*)')
         .eq('chat_id', chatId)
-        .order('created_at', { ascending: true });
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
       setMessages(data || []);
@@ -136,34 +139,71 @@ export function useChatMessages(chatId: string | null) {
 
   const markAsRead = useCallback(async () => {
     if (!chatId) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError || !userData?.user) return;
+      const user = userData.user;
 
-    await supabase
-      .from('messages')
-      .update({ is_read: true })
-      .eq('chat_id', chatId)
-      .neq('sender_id', user.id)
-      .eq('is_read', false);
+      const { error } = await supabase
+        .from('messages')
+        .update({ is_read: true })
+        .eq('chat_id', chatId)
+        .neq('sender_id', user.id)
+        .eq('is_read', false);
+
+      if (error) {
+        console.error('Error marking messages as read:', error);
+      }
+    } catch (err) {
+      console.error('Unexpected error in markAsRead:', err);
+    }
   }, [chatId]);
 
-  const sendMessage = async (text: string) => {
-    if (!chatId || !text.trim()) return;
+  const sendMessage = async (text: string, imageUrl?: string) => {
+    if (!chatId || (!text.trim() && !imageUrl)) return;
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const { data, error: authError } = await supabase.auth.getUser();
+      if (authError || !data?.user) throw new Error('Not authenticated');
+      const user = data.user;
 
       const { error } = await supabase
         .from('messages')
         .insert({
           chat_id: chatId,
           sender_id: user.id,
-          text: text.trim()
+          text: text.trim(),
+          image_url: imageUrl || null
         });
 
       if (error) throw error;
     } catch (err: any) {
       setError(err.message);
+      throw err;
+    }
+  };
+
+  const uploadImage = async (uri: string): Promise<string> => {
+    try {
+      const fileName = `${chatId}/${Date.now()}.jpg`;
+      const base64 = await readAsStringAsync(uri, {
+        encoding: EncodingType.Base64,
+      });
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-images')
+        .upload(fileName, decode(base64), {
+          contentType: 'image/jpeg',
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('chat-images')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (err: any) {
+      console.error('Error uploading chat image:', err);
       throw err;
     }
   };
@@ -201,15 +241,16 @@ export function useChatMessages(chatId: string | null) {
     };
   }, [chatId, fetchMessages, markAsRead]);
 
-  return { messages, loading, error, sendMessage, markAsRead };
+  return { messages, loading, error, sendMessage, uploadImage, markAsRead };
 }
 
 /**
  * Hook to start or get an existing chat with another user
  */
 export async function getOrCreateChat(otherUserId: string) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error('Not authenticated');
+  const { data, error: authError } = await supabase.auth.getUser();
+  if (authError || !data?.user) throw new Error('Not authenticated');
+  const user = data.user;
 
   // Check if chat already exists
   const { data: existingChat, error: fetchError } = await supabase
@@ -233,4 +274,52 @@ export async function getOrCreateChat(otherUserId: string) {
 
   if (createError) throw createError;
   return newChat.id;
+}
+
+/**
+ * Hook to get total unread message count across all chats
+ */
+export function useUnreadCount() {
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+      if (authError || !userData?.user) return;
+      const user = userData.user;
+
+      const { count, error } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('is_read', false)
+        .neq('sender_id', user.id);
+
+      if (error) throw error;
+      setUnreadCount(count || 0);
+    } catch (err) {
+      console.error('Error fetching unread count:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUnreadCount();
+
+    const channelId = `global_unread_count_${Date.now()}`;
+    const channel = supabase
+      .channel(channelId)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'messages'
+      }, () => {
+        fetchUnreadCount();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchUnreadCount]);
+
+  return unreadCount;
 }

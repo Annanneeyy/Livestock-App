@@ -1,8 +1,19 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
-import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
+
+let MapView: any, Marker: any, Callout: any, UrlTile: any, PROVIDER_DEFAULT: any;
+
+if (Platform.OS !== 'web') {
+  const Maps = require('react-native-maps');
+  MapView = Maps.default;
+  Marker = Maps.Marker;
+  Callout = Maps.Callout;
+  UrlTile = Maps.UrlTile;
+  PROVIDER_DEFAULT = Maps.PROVIDER_DEFAULT;
+}
 import { supabase } from '../lib/supabase';
 import type { Livestock } from '../types/database';
 import MapLegend from './MapLegend';
@@ -90,78 +101,87 @@ export default function LivestockMap() {
 
   return (
     <View className="flex-1">
-      <MapView
-        style={{ flex: showList ? 0.5 : 1 }}
-        provider={PROVIDER_DEFAULT}
-        initialRegion={
-          userLocation
-            ? { ...userLocation, latitudeDelta: 0.1, longitudeDelta: 0.1 }
-            : DEFAULT_REGION
-        }
-        showsUserLocation
-        showsMyLocationButton
-      >
-        {/* ESRI Satellite Tiles */}
-        <UrlTile
-          urlTemplate="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-          maximumZ={19}
-          flipY={false}
-        />
+      {Platform.OS === 'web' ? (
+        <View style={{ flex: showList ? 0.5 : 1 }} className="bg-gray-100 items-center justify-center border-b border-gray-200">
+          <Ionicons name="map-outline" size={64} color="#2E7D32" />
+          <Text className="text-gray-500 mt-4 text-center px-6">
+            The interactive map is available on iOS and Android devices. On web, please use the list view below.
+          </Text>
+        </View>
+      ) : (
+        <MapView
+          style={{ flex: showList ? 0.5 : 1 }}
+          provider={PROVIDER_DEFAULT}
+          initialRegion={
+            userLocation
+              ? { ...userLocation, latitudeDelta: 0.1, longitudeDelta: 0.1 }
+              : DEFAULT_REGION
+          }
+          showsUserLocation
+          showsMyLocationButton
+        >
+          {/* ESRI Satellite Tiles */}
+          <UrlTile
+            urlTemplate="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            maximumZ={19}
+            flipY={false}
+          />
 
-        {mappedListings.map((item) => {
-          const firstImage = item.images?.[0]?.image_url;
-          return (
-            <Marker
-              key={item.id}
-              coordinate={{
-                latitude: Number(item.latitude),
-                longitude: Number(item.longitude),
-              }}
-            >
-              {/* Marker label: emoji + post name */}
-              <View className="items-center">
-                <View className="bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200 flex-row items-center">
-                  <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
-                  <Text className="text-xs font-semibold text-gray-800" numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200" />
-              </View>
-
-              {/* Custom callout with details */}
-              <Callout
-                tooltip
-                onPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
+          {mappedListings.map((item) => {
+            const firstImage = item.images?.[0]?.image_url;
+            return (
+              <Marker
+                key={item.id}
+                coordinate={{
+                  latitude: Number(item.latitude),
+                  longitude: Number(item.longitude),
+                }}
               >
-                <View className="bg-white rounded-xl shadow-lg p-3 w-56">
-                  {firstImage && (
-                    <Image
-                      source={{ uri: firstImage }}
-                      className="w-full h-28 rounded-lg mb-2"
-                      resizeMode="cover"
-                    />
-                  )}
-                  <Text className="text-base font-bold text-gray-900">{item.name}</Text>
-                  <Text className="text-sm text-gray-500 mt-0.5">{item.category}</Text>
-                  <Text className="text-lg font-bold text-green-700 mt-1">
-                    ₱{Number(item.price).toLocaleString()}
-                  </Text>
-                  {item.seller && (
-                    <Text className="text-xs text-gray-400 mt-1">
-                      {item.seller.first_name} {item.seller.last_name}
-                      {item.seller.barangay ? ` • ${item.seller.barangay}` : ''}
+                {/* Marker label: emoji + post name */}
+                <View className="items-center">
+                  <View className="bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200 flex-row items-center">
+                    <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
+                    <Text className="text-xs font-semibold text-gray-800" numberOfLines={1}>
+                      {item.name}
                     </Text>
-                  )}
-                  <View className="bg-green-700 rounded-md py-1.5 mt-2 items-center">
-                    <Text className="text-white text-xs font-semibold">Tap to View Details</Text>
                   </View>
+                  <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200" />
                 </View>
-              </Callout>
-            </Marker>
-          );
-        })}
-      </MapView>
+
+                {/* Custom callout with details */}
+                <Callout
+                  tooltip
+                  onPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
+                >
+                  <View className="bg-white rounded-xl shadow-lg p-3 w-56">
+                    {firstImage && (
+                      <Image
+                        source={{ uri: firstImage }}
+                        className="w-full h-28 rounded-lg mb-2"
+                        resizeMode="cover"
+                      />
+                    )}
+                    <Text className="text-base font-bold text-gray-900">{item.name}</Text>
+                    <Text className="text-sm text-gray-500 mt-0.5">{item.category}</Text>
+                    <Text className="text-lg font-bold text-green-700 mt-1">
+                      ₱{Number(item.price).toLocaleString()}
+                    </Text>
+                    {item.seller && (
+                      <Text className="text-xs text-gray-400 mt-1">
+                        {item.seller.first_name} {item.seller.last_name}
+                        {item.seller.barangay ? ` • ${item.seller.barangay}` : ''}
+                      </Text>
+                    )}
+                    <View className="bg-green-700 rounded-md py-1.5 mt-2 items-center">
+                      <Text className="text-white text-xs font-semibold">Tap to View Details</Text>
+                    </View>
+                  </View>
+                </Callout>
+              </Marker>
+            );
+          })}
+        </MapView>
+      )}
 
       <MapLegend />
 
