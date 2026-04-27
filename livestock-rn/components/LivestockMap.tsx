@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
-import MapView, { Marker, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
 import { supabase } from '../lib/supabase';
@@ -108,22 +108,59 @@ export default function LivestockMap() {
           flipY={false}
         />
 
-        {mappedListings.map((item) => (
-          <Marker
-            key={item.id}
-            coordinate={{
-              latitude: Number(item.latitude),
-              longitude: Number(item.longitude),
-            }}
-            title={item.name}
-            description={`₱${Number(item.price).toLocaleString()} • ${item.category}`}
-            onCalloutPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
-          >
-            <View className="items-center">
-              <Text className="text-2xl">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
-            </View>
-          </Marker>
-        ))}
+        {mappedListings.map((item) => {
+          const firstImage = item.images?.[0]?.image_url;
+          return (
+            <Marker
+              key={item.id}
+              coordinate={{
+                latitude: Number(item.latitude),
+                longitude: Number(item.longitude),
+              }}
+            >
+              {/* Marker label: emoji + post name */}
+              <View className="items-center">
+                <View className="bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200 flex-row items-center">
+                  <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
+                  <Text className="text-xs font-semibold text-gray-800" numberOfLines={1}>
+                    {item.name}
+                  </Text>
+                </View>
+                <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200" />
+              </View>
+
+              {/* Custom callout with details */}
+              <Callout
+                tooltip
+                onPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
+              >
+                <View className="bg-white rounded-xl shadow-lg p-3 w-56">
+                  {firstImage && (
+                    <Image
+                      source={{ uri: firstImage }}
+                      className="w-full h-28 rounded-lg mb-2"
+                      resizeMode="cover"
+                    />
+                  )}
+                  <Text className="text-base font-bold text-gray-900">{item.name}</Text>
+                  <Text className="text-sm text-gray-500 mt-0.5">{item.category}</Text>
+                  <Text className="text-lg font-bold text-green-700 mt-1">
+                    ₱{Number(item.price).toLocaleString()}
+                  </Text>
+                  {item.seller && (
+                    <Text className="text-xs text-gray-400 mt-1">
+                      {item.seller.first_name} {item.seller.last_name}
+                      {item.seller.barangay ? ` • ${item.seller.barangay}` : ''}
+                    </Text>
+                  )}
+                  <View className="bg-green-700 rounded-md py-1.5 mt-2 items-center">
+                    <Text className="text-white text-xs font-semibold">Tap to View Details</Text>
+                  </View>
+                </View>
+              </Callout>
+            </Marker>
+          );
+        })}
       </MapView>
 
       <MapLegend />
