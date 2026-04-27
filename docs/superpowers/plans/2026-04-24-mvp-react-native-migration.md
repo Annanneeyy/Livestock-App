@@ -91,7 +91,7 @@
 
 ---
 
-## Phase 0: Foundation
+## Phase 0: Foundation ✅ COMPLETED (2026-04-27)
 
 ### Task 1: Initialize Expo Project
 
@@ -100,7 +100,7 @@
 - Create: `tailwind.config.js`, `global.css`, `nativewind-env.d.ts`
 - Create: `.gitignore`
 
-- [ ] **Step 1: Create Expo project**
+- [x] **Step 1: Create Expo project**
 
 Run from the repo root (`/Users/jsonse/Documents/development/Livestock-App`). We create the Expo project inside a `livestock-rn/` subdirectory to keep it separate from the existing Flutter code during migration:
 
@@ -109,7 +109,7 @@ npx create-expo-app@latest livestock-rn --template blank-typescript
 cd livestock-rn
 ```
 
-- [ ] **Step 2: Install core dependencies**
+- [x] **Step 2: Install core dependencies**
 
 ```bash
 npx expo install expo-router expo-linking expo-constants expo-status-bar react-native-screens react-native-safe-area-context
@@ -121,7 +121,7 @@ npm install @supabase/supabase-js zustand i18next react-i18next
 npm install react-native-url-polyfill
 ```
 
-- [ ] **Step 3: Configure app.json for Expo Router**
+- [x] **Step 3: Configure app.json for Expo Router**
 
 Replace the generated `app.json` with:
 
@@ -178,7 +178,7 @@ Replace the generated `app.json` with:
 }
 ```
 
-- [ ] **Step 4: Set up NativeWind (Tailwind CSS)**
+- [x] **Step 4: Set up NativeWind (Tailwind CSS)**
 
 Create `tailwind.config.js`:
 
@@ -237,7 +237,7 @@ const config = getDefaultConfig(__dirname);
 module.exports = withNativeWind(config, { input: "./global.css" });
 ```
 
-- [ ] **Step 5: Update package.json main entry for Expo Router**
+- [x] **Step 5: Update package.json main entry for Expo Router**
 
 In `package.json`, set the main entry:
 
@@ -247,7 +247,7 @@ In `package.json`, set the main entry:
 }
 ```
 
-- [ ] **Step 6: Copy assets from Flutter project**
+- [x] **Step 6: Copy assets from Flutter project**
 
 ```bash
 cp ../assets/municipal_logo.png ./assets/icon.png
@@ -261,7 +261,7 @@ cp ../assets/cute_pig_icon.png ./assets/images/
 cp ../assets/farm.jpg ./assets/images/
 ```
 
-- [ ] **Step 7: Verify project runs**
+- [x] **Step 7: Verify project runs**
 
 ```bash
 npx expo start
@@ -269,7 +269,7 @@ npx expo start
 
 Expected: Expo dev server starts. Press `i` for iOS Simulator or `a` for Android Emulator. App shows the default blank screen.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add .
@@ -288,7 +288,7 @@ git commit -m "feat: initialize Expo project with TypeScript, NativeWind, and co
 
 These SQL files are run manually in the Supabase Dashboard SQL editor (or via Supabase CLI if installed). They define the entire database.
 
-- [ ] **Step 1: Create table definitions**
+- [x] **Step 1: Create table definitions**
 
 Create `supabase/migrations/00001_create_tables.sql`:
 
@@ -452,7 +452,7 @@ CREATE INDEX idx_notifications_read ON notifications(user_id, is_read);
 CREATE INDEX idx_feeding_info_category ON feeding_info(category);
 ```
 
-- [ ] **Step 2: Create RLS policies**
+- [x] **Step 2: Create RLS policies**
 
 Create `supabase/migrations/00002_create_rls_policies.sql`:
 
@@ -686,7 +686,7 @@ CREATE POLICY "notifications_insert" ON notifications
   FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
 ```
 
-- [ ] **Step 3: Create storage bucket setup**
+- [x] **Step 3: Create storage bucket setup**
 
 Create `supabase/migrations/00003_create_storage_buckets.sql`:
 
@@ -739,7 +739,7 @@ CREATE POLICY "livestock_images_storage_delete" ON storage.objects
   );
 ```
 
-- [ ] **Step 4: Create profile auto-creation trigger**
+- [x] **Step 4: Create profile auto-creation trigger**
 
 Create `supabase/migrations/00004_create_profile_trigger.sql`:
 
@@ -777,7 +777,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 ```
 
-- [ ] **Step 5: Run migrations in Supabase Dashboard**
+- [x] **Step 5: Run migrations in Supabase Dashboard**
 
 1. Go to Supabase Dashboard → SQL Editor
 2. Run `00001_create_tables.sql` — Expected: all tables created, no errors
@@ -787,7 +787,7 @@ CREATE TRIGGER on_auth_user_created
 
 Verify: Go to Table Editor — you should see `profiles`, `livestock`, `livestock_images`, `comments`, `chats`, `messages`, `announcements`, `health_guidelines`, `feeding_info`, `notifications`.
 
-- [ ] **Step 6: Commit migration files**
+- [x] **Step 6: Commit migration files**
 
 ```bash
 git add supabase/
@@ -804,7 +804,7 @@ git commit -m "feat: add Supabase SQL migrations for all tables, RLS, storage, a
 - Create: `livestock-rn/types/database.ts`
 - Create: `livestock-rn/constants/theme.ts`
 
-- [ ] **Step 1: Create TypeScript types for the database**
+- [x] **Step 1: Create TypeScript types for the database**
 
 Create `types/database.ts`:
 
@@ -942,7 +942,7 @@ export interface Notification {
 }
 ```
 
-- [ ] **Step 2: Create Supabase client**
+- [x] **Step 2: Create Supabase client**
 
 Create `lib/supabase.ts`:
 
@@ -977,7 +977,7 @@ Add `.env` to `.gitignore`:
 .env
 ```
 
-- [ ] **Step 3: Create useAuth hook**
+- [x] **Step 3: Create useAuth hook**
 
 Create `lib/hooks/useAuth.ts`:
 
@@ -1104,7 +1104,7 @@ export function useAuth() {
 }
 ```
 
-- [ ] **Step 4: Create theme constants**
+- [x] **Step 4: Create theme constants**
 
 Create `constants/theme.ts`:
 
@@ -1176,7 +1176,7 @@ export const BARANGAYS = [
 ] as const;
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add types/ lib/ constants/ .gitignore
@@ -1193,7 +1193,7 @@ git commit -m "feat: add Supabase client, useAuth hook, database types, and them
 - Create: `livestock-rn/app/(farmer)/_layout.tsx`
 - Create: `livestock-rn/app/(admin)/_layout.tsx`
 
-- [ ] **Step 1: Create root layout with auth gate**
+- [x] **Step 1: Create root layout with auth gate**
 
 Create `app/_layout.tsx`:
 
@@ -1250,7 +1250,7 @@ export default function RootLayout() {
 }
 ```
 
-- [ ] **Step 2: Create auth group layout**
+- [x] **Step 2: Create auth group layout**
 
 Create `app/(auth)/_layout.tsx`:
 
@@ -1268,7 +1268,7 @@ export default function AuthLayout() {
 }
 ```
 
-- [ ] **Step 3: Create farmer tab layout**
+- [x] **Step 3: Create farmer tab layout**
 
 Create `app/(farmer)/_layout.tsx`:
 
@@ -1328,7 +1328,7 @@ export default function FarmerLayout() {
 }
 ```
 
-- [ ] **Step 4: Create admin tab layout**
+- [x] **Step 4: Create admin tab layout**
 
 Create `app/(admin)/_layout.tsx`:
 
@@ -1372,7 +1372,7 @@ export default function AdminLayout() {
 }
 ```
 
-- [ ] **Step 5: Create placeholder screens so the app compiles**
+- [x] **Step 5: Create placeholder screens so the app compiles**
 
 Create minimal placeholder files for each tab screen:
 
@@ -1450,7 +1450,7 @@ export default function ManageScreen() {
 
 Note: `app/(admin)/dashboard.tsx` and `app/(admin)/settings.tsx` are **not created in the MVP**. Ivan will add them in Post-MVP Phases 7 and 8. He will also update the admin `_layout.tsx` to register those tabs.
 
-- [ ] **Step 6: Verify the app compiles and shows login redirect**
+- [x] **Step 6: Verify the app compiles and shows login redirect**
 
 ```bash
 npx expo start
@@ -1458,7 +1458,7 @@ npx expo start
 
 Expected: App starts, auth gate detects no session, redirects to `/(auth)/login`. Since login doesn't exist yet, you'll see a blank/error screen — that's expected. The routing logic is working.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add app/
@@ -1474,7 +1474,7 @@ git commit -m "feat: add root layout with auth gate, farmer/admin tab layouts, a
 - Create: `livestock-rn/app/(auth)/signup.tsx`
 - Create: `livestock-rn/app/(auth)/verify-email.tsx`
 
-- [ ] **Step 1: Build login screen**
+- [x] **Step 1: Build login screen**
 
 Create `app/(auth)/login.tsx`:
 
@@ -1584,7 +1584,7 @@ export default function LoginScreen() {
 }
 ```
 
-- [ ] **Step 2: Build sign up screen**
+- [x] **Step 2: Build sign up screen**
 
 Create `app/(auth)/signup.tsx`:
 
@@ -1782,7 +1782,7 @@ export default function SignUpScreen() {
 }
 ```
 
-- [ ] **Step 3: Build email verification screen**
+- [x] **Step 3: Build email verification screen**
 
 Create `app/(auth)/verify-email.tsx`:
 
@@ -1873,7 +1873,7 @@ export default function VerifyEmailScreen() {
 }
 ```
 
-- [ ] **Step 4: Test the complete auth flow**
+- [x] **Step 4: Test the complete auth flow**
 
 ```bash
 npx expo start
@@ -1886,7 +1886,7 @@ Test the following flow:
 4. Check Table Editor → profiles → profile row auto-created by trigger
 5. Go back to login → sign in with credentials → redirected to farmer home (placeholder)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add app/(auth)/
@@ -1896,6 +1896,8 @@ git commit -m "feat: add login, sign up, and email verification screens"
 ---
 
 **Phase 0 is complete at this point. Ivan can branch off `react-migration` and start Post-MVP work.**
+
+> **Completion notes (2026-04-27):** Phase 0 committed as `23b6bc6`. Expo SDK 54 (plan said 52+). React upgraded to 19.2.5 to resolve peer dependency conflict. All 4 SQL migrations run against remote Supabase project (`jgqcuaeuggtyymwyujvn`) via `supabase db query --linked`. Supabase CLI linked to project. All tasks consolidated into a single commit rather than per-task commits.
 
 ---
 
