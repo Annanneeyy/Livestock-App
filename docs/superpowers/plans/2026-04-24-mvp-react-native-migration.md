@@ -3918,7 +3918,7 @@ git commit -m "feat: add admin content management screens for announcements, hea
 
 ---
 
-## Phase 4: Migration & Profile ✅ PARTIALLY COMPLETED (2026-04-27) — Profile screen done, migration script pending
+## Phase 4: Migration & Profile ✅ COMPLETED (2026-04-27)
 
 ### Task 16: Profile Screen
 
@@ -4173,7 +4173,7 @@ git commit -m "feat: add profile screen with edit and avatar upload"
 - Create: `livestock-rn/scripts/package.json`
 - Create: `livestock-rn/scripts/migrate-firebase-to-supabase.ts`
 
-- [ ] **Step 1: Create scripts package.json**
+- [x] **Step 1: Create scripts package.json**
 
 Create `scripts/package.json`:
 
@@ -4193,7 +4193,7 @@ Create `scripts/package.json`:
 }
 ```
 
-- [ ] **Step 2: Create the migration script**
+- [x] **Step 2: Create the migration script**
 
 Create `scripts/migrate-firebase-to-supabase.ts`. The script requires three env vars:
 - `FIREBASE_SERVICE_ACCOUNT_PATH` — path to Firebase service account JSON
@@ -4262,7 +4262,7 @@ async function main() {
 main().catch(console.error);
 ```
 
-- [ ] **Step 3: Run the migration**
+- [x] **Step 3: Run the migration**
 
 ```bash
 cd scripts
@@ -4275,7 +4275,7 @@ npm run migrate
 
 Expected output: counts of migrated users, profiles, livestock, images, chats, messages, etc. Verify in Supabase Dashboard that all data appears.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add scripts/
