@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
 import { useAuth } from '../../lib/hooks/useAuth';
 import { supabase } from '../../lib/supabase';
@@ -59,8 +59,8 @@ export default function ProfileScreen() {
     const fileName = `${user.id}/avatar.jpg`;
 
     try {
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
+      const base64 = await readAsStringAsync(uri, {
+        encoding: EncodingType.Base64,
       });
 
       const { error: uploadError } = await supabase.storage

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import * as FileSystem from 'expo-file-system';
+import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
 import { supabase } from '../supabase';
 import type { Livestock, LivestockImage, Comment } from '../../types/database';
@@ -113,8 +113,8 @@ export async function createLivestock(
     const uri = imageUris[i];
     const fileName = `${livestockId}/${Date.now()}_${i}.jpg`;
 
-    const base64 = await FileSystem.readAsStringAsync(uri, {
-      encoding: FileSystem.EncodingType.Base64,
+    const base64 = await readAsStringAsync(uri, {
+      encoding: EncodingType.Base64,
     });
 
     const { error: uploadError } = await supabase.storage
