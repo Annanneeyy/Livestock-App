@@ -8,7 +8,10 @@ const { width } = Dimensions.get('window');
 
 export default function AdminDashboard() {
   const { stats, loading, error, refresh } = useAdminStats();
+<<<<<<< Updated upstream
   const [activeTab, setActiveTab] = useState('overview');
+=======
+>>>>>>> Stashed changes
 
   if (loading) {
     return (
