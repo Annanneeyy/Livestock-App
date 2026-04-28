@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
-import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, Platform } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
+
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { supabase } from '../lib/supabase';
 import type { Livestock } from '../types/database';
 import MapLegend from './MapLegend';
@@ -140,6 +142,7 @@ export default function LivestockMap() {
                       source={{ uri: firstImage }}
                       className="w-full h-28 rounded-lg mb-2"
                       resizeMode="cover"
+                      style={{ width: '100%', height: 112, borderRadius: 8 }}
                     />
                   )}
                   <Text className="text-base font-bold text-gray-900">{item.name}</Text>

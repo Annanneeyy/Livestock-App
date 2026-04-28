@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import NotificationBell from '../../../components/NotificationBell';
 
-export default function MarketplaceLayout() {
+export default function ChatsLayout() {
   return (
     <Stack
       screenOptions={{
@@ -12,10 +12,18 @@ export default function MarketplaceLayout() {
         headerRight: () => <NotificationBell />,
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Marketplace' }} />
-      <Stack.Screen name="[id]" options={{ title: 'Post Details' }} />
-      <Stack.Screen name="create" options={{ title: 'Post Listing' }} />
-      <Stack.Screen name="pick-location" options={{ title: 'Select Location' }} />
+      <Stack.Screen
+        name="index"
+        options={{
+          title: 'Messages',
+        }}
+      />
+      <Stack.Screen
+        name="[id]"
+        options={{
+          title: 'Chat',
+        }}
+      />
     </Stack>
   );
 }
