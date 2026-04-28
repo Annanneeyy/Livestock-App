@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
-import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
 import { supabase } from '../lib/supabase';
