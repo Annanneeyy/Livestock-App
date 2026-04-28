@@ -46,10 +46,7 @@ export default function AdminLayout() {
         name="settings"
         options={{
           title: 'Settings',
-<<<<<<< Updated upstream
-=======
           headerShown: false,
->>>>>>> Stashed changes
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="settings" size={size} color={color} />
           ),

@@ -5,6 +5,7 @@ export default function ManageLayout() {
       screenOptions={{
         headerStyle: { backgroundColor: '#1B5E20' },
         headerTintColor: '#fff',
+        headerTitleStyle: { fontWeight: 'bold' },
       }}
     >
       <Stack.Screen 
@@ -13,15 +14,15 @@ export default function ManageLayout() {
       />
       <Stack.Screen 
         name="health" 
-        options={{ headerShown: false }} 
+        options={{ title: 'Health Guidelines' }} 
       />
       <Stack.Screen 
         name="announcements" 
-        options={{ headerShown: false }} 
+        options={{ title: 'Announcements' }} 
       />
       <Stack.Screen 
         name="feeding" 
-        options={{ headerShown: false }} 
+        options={{ title: 'Feeding Information' }} 
       />
     </Stack>
   );
