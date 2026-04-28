@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { MapContainer, TileLayer, Marker as LeafletMarker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -67,12 +67,25 @@ export const Marker = ({ coordinate, children, onPress }: any) => {
       position={[coordinate.latitude, coordinate.longitude]}
       eventHandlers={{ click: () => onPress?.() }}
     >
-      {children && <Popup>{children}</Popup>}
+      {children && (
+        <Popup minWidth={200} closeButton={true}>
+          {children}
+        </Popup>
+      )}
     </LeafletMarker>
   );
 };
 
-export const Callout = ({ children }: any) => <View>{children}</View>;
+export const Callout = ({ children, onPress }: any) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    activeOpacity={0.7}
+    style={{ cursor: 'pointer' }}
+  >
+    {children}
+  </TouchableOpacity>
+);
+
 export const UrlTile = ({ urlTemplate }: any) => urlTemplate ? <TileLayer url={urlTemplate} /> : null;
 export const PROVIDER_DEFAULT = 'default';
 

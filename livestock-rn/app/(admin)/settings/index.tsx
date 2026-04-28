@@ -18,7 +18,6 @@ export default function AdminSettingsIndex() {
     {
       title: 'Admin Tools',
       items: [
-        { label: 'System Logs', icon: 'shield-checkmark-outline', route: '/(admin)/settings/logs' },
         { label: 'Manage Admins', icon: 'people-outline', route: '/(admin)/settings/admins' },
       ]
     }

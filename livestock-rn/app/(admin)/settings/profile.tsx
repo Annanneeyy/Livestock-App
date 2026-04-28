@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../../lib/hooks/useAuth';
 import { supabase } from '../../../lib/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
+import { useRouter } from 'expo-router';
 
 export default function ProfileDetailsScreen() {
   const { profile, user, refreshProfile } = useAuth();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
-    email: '',
     barangay: ''
   });
   const [image, setImage] = useState<string | null>(null);
@@ -23,12 +24,11 @@ export default function ProfileDetailsScreen() {
       setFormData({
         first_name: profile.first_name || '',
         last_name: profile.last_name || '',
-        email: user?.email || '', // Email comes from Auth user, not Profiles table
         barangay: profile.barangay || ''
       });
       setImage(profile.avatar_url || null);
     }
-  }, [profile, user]);
+  }, [profile]);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -53,18 +53,31 @@ export default function ProfileDetailsScreen() {
       // 1. Handle Image Upload if changed
       if (image && !image.startsWith('http')) {
         const fileName = `avatars/${profile.id}_${Date.now()}.jpg`;
-        const base64 = await FileSystem.readAsStringAsync(image, {
-          encoding: 'base64',
-        });
-
-        const { error: uploadError } = await supabase.storage
-          .from('livestock-images')
-          .upload(fileName, decode(base64), {
-            contentType: 'image/jpeg',
-            upsert: true
+        
+        if (Platform.OS === 'web') {
+          // Web handling for image upload
+          const response = await fetch(image);
+          const blob = await response.blob();
+          const { error: uploadError } = await supabase.storage
+            .from('livestock-images')
+            .upload(fileName, blob, {
+              contentType: 'image/jpeg',
+              upsert: true
+            });
+          if (uploadError) throw uploadError;
+        } else {
+          // Mobile handling
+          const base64 = await FileSystem.readAsStringAsync(image, {
+            encoding: 'base64',
           });
-
-        if (uploadError) throw uploadError;
+          const { error: uploadError } = await supabase.storage
+            .from('livestock-images')
+            .upload(fileName, decode(base64), {
+              contentType: 'image/jpeg',
+              upsert: true
+            });
+          if (uploadError) throw uploadError;
+        }
 
         const { data: urlData } = supabase.storage
           .from('livestock-images')
@@ -73,16 +86,7 @@ export default function ProfileDetailsScreen() {
         avatarUrl = urlData.publicUrl;
       }
 
-      // 2. Update Auth Email if changed
-      if (formData.email !== user?.email) {
-        const { error: authError } = await supabase.auth.updateUser({
-          email: formData.email
-        });
-        if (authError) throw authError;
-        Alert.alert('Email Update', 'A confirmation link has been sent to your new email address.');
-      }
-
-      // 3. Update Profile table (removed email as it doesn't exist in profiles table)
+      // 2. Update Profile table
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -90,16 +94,27 @@ export default function ProfileDetailsScreen() {
           last_name: formData.last_name,
           barangay: formData.barangay,
           avatar_url: avatarUrl,
-          updated_at: new Date().toISOString(),
         })
         .eq('id', profile.id);
 
       if (error) throw error;
 
       await refreshProfile();
-      Alert.alert('Success', 'Profile details updated successfully');
+      
+      if (Platform.OS === 'web') {
+        alert('Profile updated successfully');
+        router.push('/(admin)/settings');
+      } else {
+        Alert.alert('Success', 'Profile updated successfully', [
+          { text: 'OK', onPress: () => router.push('/(admin)/settings') }
+        ]);
+      }
     } catch (err: any) {
-      Alert.alert('Error', err.message);
+      if (Platform.OS === 'web') {
+        alert('Error: ' + err.message);
+      } else {
+        Alert.alert('Error', err.message);
+      }
     } finally {
       setLoading(false);
     }
@@ -107,7 +122,7 @@ export default function ProfileDetailsScreen() {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 p-4">
-      <View className="bg-white rounded-3xl p-6 shadow-sm mb-6">
+      <View className="bg-white rounded-3xl p-6 shadow-sm mb-6 max-w-2xl mx-auto w-full">
         <View className="items-center mb-6">
           <View className="w-24 h-24 bg-green-50 rounded-full items-center justify-center border-4 border-white shadow-sm overflow-hidden">
             {image ? (
@@ -133,10 +148,9 @@ export default function ProfileDetailsScreen() {
             onChangeText={(text: string) => setFormData({...formData, last_name: text})}
           />
           <InputGroup 
-            label="Email Address" 
-            value={formData.email} 
-            onChangeText={(text: string) => setFormData({...formData, email: text})}
-            keyboardType="email-address"
+            label="Email Address (Locked)" 
+            value={user?.email || ''} 
+            editable={false} 
           />
           <InputGroup 
             label="Barangay" 
@@ -149,6 +163,7 @@ export default function ProfileDetailsScreen() {
           className={`mt-8 py-4 rounded-2xl items-center shadow-md ${loading ? 'bg-green-200' : 'bg-green-700'}`}
           onPress={handleSave}
           disabled={loading}
+          style={{ width: '100%' }}
         >
           {loading ? (
             <ActivityIndicator color="white" />
@@ -161,16 +176,25 @@ export default function ProfileDetailsScreen() {
   );
 }
 
-function InputGroup({ label, value, onChangeText, editable = true, keyboardType = 'default' }: any) {
+function InputGroup({ label, value, onChangeText, editable = true }: any) {
   return (
     <View className="mb-4">
       <Text className="text-sm font-semibold text-gray-500 mb-1 ml-1">{label}</Text>
       <TextInput
-        className={`bg-gray-50 p-4 rounded-xl border border-gray-100 text-gray-900 ${!editable ? 'text-gray-400' : ''}`}
+        style={{
+          backgroundColor: editable ? '#F9FAFB' : '#F3F4F6',
+          padding: 16,
+          borderRadius: 12,
+          borderWidth: 1,
+          borderColor: '#F3F4F6',
+          color: editable ? '#111827' : '#9CA3AF',
+          fontSize: 16,
+          minHeight: 50, // Added for web visibility
+          width: '100%',
+        }}
         value={value}
         onChangeText={onChangeText}
         editable={editable}
-        keyboardType={keyboardType}
         autoCapitalize="none"
       />
     </View>

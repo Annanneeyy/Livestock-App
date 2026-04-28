@@ -22,10 +22,6 @@ export default function SettingsLayout() {
         options={{ title: 'Notification Preferences' }} 
       />
       <Stack.Screen 
-        name="logs" 
-        options={{ title: 'System Logs' }} 
-      />
-      <Stack.Screen 
         name="admins" 
         options={{ title: 'Manage Admins' }} 
       />

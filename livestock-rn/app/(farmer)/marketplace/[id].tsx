@@ -30,8 +30,18 @@ export default function PostDetailScreen() {
 
   const isOwner = user?.id === data.seller_id;
 
+  const handleMarkAsSold = async () => {
+    try {
+      await markAsSold(data.id);
+      Alert.alert('Success', 'Item marked as sold!');
+      refetch();
+    } catch (err: any) {
+      Alert.alert('Error', err.message);
+    }
+  };
+
   const handleDelete = () => {
-    Alert.alert('Delete Post', 'This action cannot be undone.', [
+    Alert.alert('Delete Post', 'Are you sure you want to remove this listing? It will no longer be visible in the marketplace.', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
@@ -103,22 +113,33 @@ export default function PostDetailScreen() {
 
         {/* Owner Actions */}
         {isOwner && (
-          <View className="flex-row gap-3 mb-6">
-            <TouchableOpacity
-              className="flex-1 bg-blue-600 rounded-lg py-3 items-center"
-              onPress={() => router.push({
-                pathname: '/(farmer)/marketplace/create',
-                params: { editId: data.id },
-              })}
-            >
-              <Text className="text-white font-semibold">Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-1 bg-red-600 rounded-lg py-3 items-center"
-              onPress={handleDelete}
-            >
-              <Text className="text-white font-semibold">Delete</Text>
-            </TouchableOpacity>
+          <View className="mb-6">
+            <View className="flex-row gap-3 mb-3">
+              <TouchableOpacity
+                className="flex-1 bg-blue-600 rounded-lg py-3 items-center"
+                onPress={() => router.push({
+                  pathname: '/(farmer)/marketplace/create',
+                  params: { editId: data.id },
+                })}
+              >
+                <Text className="text-white font-semibold">Edit</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-red-600 rounded-lg py-3 items-center"
+                onPress={handleDelete}
+              >
+                <Text className="text-white font-semibold">Delete</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {data.is_available && (
+              <TouchableOpacity
+                className="w-full bg-green-700 rounded-lg py-3 items-center"
+                onPress={handleMarkAsSold}
+              >
+                <Text className="text-white font-semibold">Mark as Sold</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
 

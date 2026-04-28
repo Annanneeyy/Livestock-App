@@ -108,12 +108,15 @@ export default function CreatePostScreen() {
           longitude,
           location_text: locationText.trim() || null,
         }, images);
-        Alert.alert('Success', 'Listing updated!', [
-          { text: 'OK', onPress: () => {
-            // Go back to post detail, which will refetch
-            router.back();
-          }},
-        ]);
+        
+        if (Platform.OS === 'web') {
+          alert('Listing updated!');
+          router.replace(`/(farmer)/marketplace/${params.editId}`);
+        } else {
+          Alert.alert('Success', 'Listing updated!', [
+            { text: 'OK', onPress: () => router.replace(`/(farmer)/marketplace/${params.editId}`) },
+          ]);
+        }
       } else {
         const newId = await createLivestock(
           {
@@ -130,15 +133,19 @@ export default function CreatePostScreen() {
           },
           images
         );
-        Alert.alert('Success', 'Livestock posted!', [
-          { text: 'OK', onPress: () => {
-            // Navigate to the marketplace list, replacing create screen from stack
-            router.dismiss();
-          }},
-        ]);
+        
+        if (Platform.OS === 'web') {
+          alert('Livestock posted!');
+          router.replace(`/(farmer)/marketplace/${newId}`);
+        } else {
+          Alert.alert('Success', 'Livestock posted!', [
+            { text: 'OK', onPress: () => router.replace(`/(farmer)/marketplace/${newId}`) },
+          ]);
+        }
       }
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to save post.');
+      if (Platform.OS === 'web') alert('Error: ' + error.message);
+      else Alert.alert('Error', error.message || 'Failed to save post.');
     } finally {
       setLoading(false);
     }

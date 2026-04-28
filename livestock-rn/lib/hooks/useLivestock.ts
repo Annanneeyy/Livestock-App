@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
+import { Platform } from 'react-native';
 import { supabase } from '../supabase';
 import type { Livestock, LivestockImage, Comment } from '../../types/database';
 
@@ -115,15 +116,23 @@ export async function createLivestock(
 
     try {
       const fileName = `${livestockId}/${Date.now()}_${i}.jpg`;
+      let fileData;
 
-      const base64 = await readAsStringAsync(uri, {
-        encoding: EncodingType.Base64,
-      });
+      if (Platform.OS === 'web') {
+        const response = await fetch(uri);
+        fileData = await response.blob();
+      } else {
+        const base64 = await readAsStringAsync(uri, {
+          encoding: EncodingType.Base64,
+        });
+        fileData = decode(base64);
+      }
 
       const { error: uploadError } = await supabase.storage
         .from('livestock-images')
-        .upload(fileName, decode(base64), {
+        .upload(fileName, fileData, {
           contentType: 'image/jpeg',
+          upsert: true
         });
 
       if (uploadError) {
@@ -161,33 +170,13 @@ export async function updateLivestock(
 
   if (error) throw error;
 
-  // Handle image updates if new images provided
   if (newImageUris) {
-    // Delete old images from storage and database
-    const { data: oldImages } = await supabase
-      .from('livestock_images')
-      .select('image_url')
-      .eq('livestock_id', id);
-
-    if (oldImages) {
-      const paths = oldImages.map((img) => {
-        const url = new URL(img.image_url);
-        return url.pathname.split('/livestock-images/')[1];
-      }).filter(Boolean);
-
-      if (paths.length > 0) {
-        await supabase.storage.from('livestock-images').remove(paths);
-      }
-    }
-
-    // Delete old image records
+    // Delete old image records (cleanup storage is optional here but good for space)
     await supabase.from('livestock_images').delete().eq('livestock_id', id);
 
-    // Upload new images
     for (let i = 0; i < newImageUris.length; i++) {
       const uri = newImageUris[i];
 
-      // Skip URLs that are already in Supabase (existing images the user kept)
       if (uri.startsWith('http')) {
         await supabase.from('livestock_images').insert({
           livestock_id: id,
@@ -198,15 +187,23 @@ export async function updateLivestock(
       }
 
       const fileName = `${id}/${Date.now()}_${i}.jpg`;
+      let fileData;
 
-      const base64 = await readAsStringAsync(uri, {
-        encoding: EncodingType.Base64,
-      });
+      if (Platform.OS === 'web') {
+        const response = await fetch(uri);
+        fileData = await response.blob();
+      } else {
+        const base64 = await readAsStringAsync(uri, {
+          encoding: EncodingType.Base64,
+        });
+        fileData = decode(base64);
+      }
 
       const { error: uploadError } = await supabase.storage
         .from('livestock-images')
-        .upload(fileName, decode(base64), {
+        .upload(fileName, fileData, {
           contentType: 'image/jpeg',
+          upsert: true
         });
 
       if (uploadError) {
@@ -227,27 +224,25 @@ export async function updateLivestock(
   }
 }
 
+export async function markAsSold(id: string) {
+  const { error } = await supabase
+    .from('livestock')
+    .update({ is_available: false, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) throw error;
+}
+
 export async function deleteLivestock(id: string) {
-  // Images in storage are NOT auto-deleted — clean up manually
-  const { data: images } = await supabase
-    .from('livestock_images')
-    .select('image_url')
-    .eq('livestock_id', id);
-
-  if (images) {
-    const paths = images.map((img) => {
-      const url = new URL(img.image_url);
-      // Extract path after /storage/v1/object/public/livestock-images/
-      return url.pathname.split('/livestock-images/')[1];
-    }).filter(Boolean);
-
-    if (paths.length > 0) {
-      await supabase.storage.from('livestock-images').remove(paths);
-    }
-  }
-
-  // Cascade delete handles livestock_images and comments rows
-  const { error } = await supabase.from('livestock').delete().eq('id', id);
+  // Soft delete: setting is_available to false. 
+  // In a real app, you'd have an is_deleted column.
+  const { error } = await supabase
+    .from('livestock')
+    .update({ 
+      is_available: false, 
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+    
   if (error) throw error;
 }
 
