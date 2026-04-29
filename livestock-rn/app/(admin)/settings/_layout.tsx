@@ -1,30 +1,29 @@
 import { Stack } from 'expo-router';
 
-export default function MarketplaceLayout() {
+export default function SettingsLayout() {
   return (
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: '#1B5E20' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
-        headerBackTitle: 'Back',
       }}
     >
       <Stack.Screen 
         name="index" 
-        options={{ title: 'Marketplace' }} 
+        options={{ title: 'Settings' }} 
       />
       <Stack.Screen 
-        name="[id]" 
-        options={{ title: 'Marketplace Details' }} 
+        name="profile" 
+        options={{ title: 'Profile Details' }} 
       />
       <Stack.Screen 
-        name="create" 
-        options={{ title: 'New Listing' }} 
+        name="notifications" 
+        options={{ title: 'Notification Preferences' }} 
       />
       <Stack.Screen 
-        name="pick-location" 
-        options={{ title: 'Select Location' }} 
+        name="admins" 
+        options={{ title: 'Manage Admins' }} 
       />
     </Stack>
   );

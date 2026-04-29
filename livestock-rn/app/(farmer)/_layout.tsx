@@ -21,6 +21,7 @@ export default function FarmerLayout() {
         name="home"
         options={{
           title: 'Map',
+          headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="map" size={size} color={color} />
           ),

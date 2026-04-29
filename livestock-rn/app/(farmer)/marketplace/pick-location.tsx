@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker, PROVIDER_DEFAULT } from '../../../components/NativeMap';
 import * as Location from 'expo-location';
 
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../../components/NativeMap';

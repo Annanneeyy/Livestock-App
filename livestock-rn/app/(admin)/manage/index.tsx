@@ -31,7 +31,6 @@ export default function ManageScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 p-4">
-      <Text className="text-xl font-bold text-green-900 mb-4">Content Management</Text>
 
       {SECTIONS.map((section) => (
         <TouchableOpacity

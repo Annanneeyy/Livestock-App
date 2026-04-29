@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import { MapContainer, TileLayer, Marker as LeafletMarker, Popup, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -13,7 +13,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Helper to handle map clicks
 function MapEvents({ onPress }: { onPress?: (e: any) => void }) {
   useMapEvents({
     click: (e) => {
@@ -32,9 +31,8 @@ function MapEvents({ onPress }: { onPress?: (e: any) => void }) {
   return null;
 }
 
-const MapView = ({ children, style, initialRegion, onPress, mapType, provider }: any) => {
+const MapView = ({ children, style, initialRegion, onPress, mapType }: any) => {
   const center = initialRegion ? [initialRegion.latitude, initialRegion.longitude] : [7.7306, 125.0975];
-  // Calculate zoom from delta (approximate)
   const zoom = initialRegion ? Math.round(Math.log2(360 / initialRegion.latitudeDelta)) : 13;
 
   return (
@@ -43,7 +41,6 @@ const MapView = ({ children, style, initialRegion, onPress, mapType, provider }:
         center={center as any}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
-        scrollWheelZoom={true}
       >
         {mapType === 'satellite' ? (
           <TileLayer
@@ -65,42 +62,31 @@ const MapView = ({ children, style, initialRegion, onPress, mapType, provider }:
 
 export const Marker = ({ coordinate, children, onPress }: any) => {
   if (!coordinate) return null;
-  
-  // Note: For children, Leaflet doesn't easily render React components as icons
-  // But we can use a Popup to show details if children exist, or just a default marker
   return (
     <LeafletMarker 
       position={[coordinate.latitude, coordinate.longitude]}
-      eventHandlers={{
-        click: () => onPress?.()
-      }}
+      eventHandlers={{ click: () => onPress?.() }}
     >
       {children && (
-        <Popup>
-          <View style={{ minWidth: 100 }}>
-            {children}
-          </View>
+        <Popup minWidth={200} closeButton={true}>
+          {children}
         </Popup>
       )}
     </LeafletMarker>
   );
 };
 
-export const Callout = ({ children, onPress }: any) => {
-  // In our simplified web version, Callout content is handled inside Marker Popup
-  return (
-    <View onTouchEnd={onPress}>
-      {children}
-    </View>
-  );
-};
+export const Callout = ({ children, onPress }: any) => (
+  <TouchableOpacity 
+    onPress={onPress}
+    activeOpacity={0.7}
+    style={{ cursor: 'pointer' }}
+  >
+    {children}
+  </TouchableOpacity>
+);
 
-export const UrlTile = ({ urlTemplate }: any) => {
-  if (!urlTemplate) return null;
-  // Convert {x} {y} {z} format if needed, but Leaflet uses same tokens
-  return <TileLayer url={urlTemplate} />;
-};
-
+export const UrlTile = ({ urlTemplate }: any) => urlTemplate ? <TileLayer url={urlTemplate} /> : null;
 export const PROVIDER_DEFAULT = 'default';
 
 export default MapView;

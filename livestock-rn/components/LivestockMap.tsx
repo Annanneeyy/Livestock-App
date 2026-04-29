@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, Platform } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
+import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
 
