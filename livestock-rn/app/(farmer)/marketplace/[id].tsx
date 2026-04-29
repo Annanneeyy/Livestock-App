@@ -1,10 +1,11 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLivestockDetail, deleteLivestock } from '../../../lib/hooks/useLivestock';
 import { useAuth } from '../../../lib/hooks/useAuth';
 import ImageGallery from '../../../components/ImageGallery';
 import CommentSection from '../../../components/CommentSection';
+import { getOrCreateChat } from '../../../lib/hooks/useChat';
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -56,6 +57,12 @@ export default function PostDetailScreen() {
 
   return (
     <ScrollView className="flex-1 bg-white">
+      <Stack.Screen 
+        options={{ 
+          title: data.name || 'Post Details',
+          headerBackVisible: true, // Force back button visibility
+        }} 
+      />
       <ImageGallery images={data.images || []} />
 
       <View className="p-4">
@@ -109,6 +116,24 @@ export default function PostDetailScreen() {
             <Ionicons name="location" size={16} color="#2E7D32" />
             <Text className="text-sm text-gray-600 ml-1">{data.location_text}</Text>
           </View>
+        )}
+
+        {/* Action Buttons */}
+        {!isOwner && user && (
+          <TouchableOpacity
+            className="flex-row bg-green-700 rounded-lg py-3 px-4 items-center justify-center mb-6"
+            onPress={async () => {
+              try {
+                const chatId = await getOrCreateChat(data.seller_id);
+                router.push(`/(farmer)/chats/${chatId}`);
+              } catch (err) {
+                Alert.alert('Error', 'Could not start chat. Please try again.');
+              }
+            }}
+          >
+            <Ionicons name="chatbubble-ellipses" size={20} color="#fff" style={{ marginRight: 8 }} />
+            <Text className="text-white font-bold text-base">Chat with Seller</Text>
+          </TouchableOpacity>
         )}
 
         {/* Owner Actions */}

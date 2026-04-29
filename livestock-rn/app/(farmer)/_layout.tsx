@@ -1,7 +1,11 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useUnreadCount } from '../../lib/hooks/useChat';
+import NotificationBell from '../../components/NotificationBell';
 
 export default function FarmerLayout() {
+  const unreadCount = useUnreadCount();
+
   return (
     <Tabs
       screenOptions={{
@@ -10,6 +14,7 @@ export default function FarmerLayout() {
         headerShown: true,
         headerStyle: { backgroundColor: '#2E7D32' },
         headerTintColor: '#fff',
+        headerRight: () => <NotificationBell />,
       }}
     >
       <Tabs.Screen
@@ -40,6 +45,22 @@ export default function FarmerLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="book" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="chats"
+        options={{
+          title: 'Messages',
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="chatbubbles" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="notifications/index"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
