@@ -4,7 +4,6 @@ import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap
 import { useRouter, useFocusEffect } from 'expo-router';
 import * as Location from 'expo-location';
 
-import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { supabase } from '../lib/supabase';
 import type { Livestock } from '../types/database';
 import MapLegend from './MapLegend';

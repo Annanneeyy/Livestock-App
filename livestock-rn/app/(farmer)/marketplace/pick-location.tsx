@@ -5,8 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import MapView, { Marker, PROVIDER_DEFAULT } from '../../../components/NativeMap';
 import * as Location from 'expo-location';
 
-import MapView, { Marker, PROVIDER_DEFAULT } from '../../../components/NativeMap';
-
 // Quezon, Bukidnon center coordinates
 const INITIAL_REGION = {
   latitude: 7.7306,
