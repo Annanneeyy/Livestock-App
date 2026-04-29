@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { readAsStringAsync, EncodingType } from 'expo-file-system/legacy';
+import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer';
 import { Platform } from 'react-native';
 import { supabase } from '../supabase';
@@ -21,7 +21,7 @@ export function useLivestockList(filters?: {
     let query = supabase
       .from('livestock')
       .select(`
-        *,
+        id, name, category, price, description, contact, location_text, latitude, longitude, is_available, seller_id, created_at,
         seller:profiles!seller_id(id, first_name, last_name, barangay, avatar_url),
         images:livestock_images(id, image_url, sort_order)
       `)
@@ -67,7 +67,7 @@ export function useLivestockDetail(id: string) {
     const { data: livestock } = await supabase
       .from('livestock')
       .select(`
-        *,
+        id, name, category, price, description, contact, location_text, latitude, longitude, is_available, seller_id, created_at,
         seller:profiles!seller_id(id, first_name, last_name, barangay, avatar_url),
         images:livestock_images(id, image_url, sort_order)
       `)
@@ -122,8 +122,8 @@ export async function createLivestock(
         const response = await fetch(uri);
         fileData = await response.blob();
       } else {
-        const base64 = await readAsStringAsync(uri, {
-          encoding: EncodingType.Base64,
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
         });
         fileData = decode(base64);
       }
@@ -193,8 +193,8 @@ export async function updateLivestock(
         const response = await fetch(uri);
         fileData = await response.blob();
       } else {
-        const base64 = await readAsStringAsync(uri, {
-          encoding: EncodingType.Base64,
+        const base64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: FileSystem.EncodingType.Base64,
         });
         fileData = decode(base64);
       }

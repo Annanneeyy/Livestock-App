@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useLivestockDetail, deleteLivestock } from '../../../lib/hooks/useLivestock';
+import { useLivestockDetail, deleteLivestock, markAsSold } from '../../../lib/hooks/useLivestock';
 import { useAuth } from '../../../lib/hooks/useAuth';
 import ImageGallery from '../../../components/ImageGallery';
 import CommentSection from '../../../components/CommentSection';

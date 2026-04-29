@@ -1,3 +1,4 @@
+import React, { memo } from 'react';
 import { View, Text, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import type { Livestock } from '../types/database';
@@ -6,7 +7,7 @@ interface Props {
   item: Livestock;
 }
 
-export default function LivestockCard({ item }: Props) {
+const LivestockCard = memo(({ item }: Props) => {
   const router = useRouter();
   const firstImage = item.images?.[0]?.image_url;
 
@@ -57,4 +58,6 @@ export default function LivestockCard({ item }: Props) {
       </View>
     </TouchableOpacity>
   );
-}
+});
+
+export default LivestockCard;
