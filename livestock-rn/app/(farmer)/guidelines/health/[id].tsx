@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, Stack } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../../../lib/supabase';
 import type { HealthGuideline } from '../../../../types/database';
@@ -48,6 +48,7 @@ export default function HealthGuidelineDetailScreen() {
 
   return (
     <ScrollView className="flex-1 bg-gray-50 p-4">
+      <Stack.Screen options={{ title: data.disease }} />
       {sections.map((section) =>
         section.content ? (
           <View key={section.title} className="bg-white rounded-xl p-4 mb-3 shadow-sm">

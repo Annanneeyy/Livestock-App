@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, TouchableOpacity, Image, TextInput, Alert,
-  ScrollView, ActivityIndicator,
+  ScrollView, ActivityIndicator, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -201,10 +201,16 @@ export default function ProfileScreen() {
         <TouchableOpacity
           className="bg-red-50 rounded-lg py-3 items-center mt-4"
           onPress={() => {
-            Alert.alert('Sign Out', 'Are you sure?', [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Sign Out', style: 'destructive', onPress: signOut },
-            ]);
+            if (Platform.OS === 'web') {
+              if (confirm('Are you sure you want to sign out?')) {
+                signOut();
+              }
+            } else {
+              Alert.alert('Sign Out', 'Are you sure?', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Sign Out', style: 'destructive', onPress: signOut },
+              ]);
+            }
           }}
         >
           <Text className="text-red-600 font-semibold">Sign Out</Text>

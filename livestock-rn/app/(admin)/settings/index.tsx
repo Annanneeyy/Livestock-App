@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../../lib/hooks/useAuth';
@@ -61,7 +61,18 @@ export default function AdminSettingsIndex() {
 
         <TouchableOpacity 
           className="mt-4 bg-red-50 p-4 rounded-2xl flex-row items-center justify-center mb-10"
-          onPress={signOut}
+          onPress={() => {
+            if (Platform.OS === 'web') {
+              if (confirm('Are you sure you want to sign out?')) {
+                signOut();
+              }
+            } else {
+              Alert.alert('Sign Out', 'Are you sure?', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Sign Out', style: 'destructive', onPress: signOut },
+              ]);
+            }
+          }}
         >
           <Ionicons name="log-out-outline" size={22} color="#DC2626" />
           <Text className="ml-2 text-red-600 font-semibold text-base">Sign Out</Text>
