@@ -19,7 +19,6 @@ export default function MarketplaceScreen() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [myPostsOnly, setMyPostsOnly] = useState(false);
-
   const { profile } = useAuth();
   const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
 

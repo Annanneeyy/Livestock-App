@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { decode } from 'base64-arraybuffer';
 import { Platform } from 'react-native';
 import { supabase } from '../supabase';
@@ -123,7 +123,7 @@ export async function createLivestock(
         fileData = await response.blob();
       } else {
         const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64,
+          encoding: 'base64',
         });
         fileData = decode(base64);
       }
@@ -194,7 +194,7 @@ export async function updateLivestock(
         fileData = await response.blob();
       } else {
         const base64 = await FileSystem.readAsStringAsync(uri, {
-          encoding: FileSystem.EncodingType.Base64,
+          encoding: 'base64',
         });
         fileData = decode(base64);
       }

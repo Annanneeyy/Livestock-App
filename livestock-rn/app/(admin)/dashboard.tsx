@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Dimensions, DeviceEventEmitter } from 'react-native';
 import { BarChart, PieChart, LineChart } from 'react-native-gifted-charts';
 import { Ionicons } from '@expo/vector-icons';
 import { useAdminStats } from '../../lib/hooks/useAdminStats';
@@ -8,6 +8,11 @@ const { width } = Dimensions.get('window');
 
 export default function AdminDashboard() {
   const { stats, loading, error, refresh } = useAdminStats();
+
+  React.useEffect(() => {
+    const sub = DeviceEventEmitter.addListener('refresh_dashboard', refresh);
+    return () => sub.remove();
+  }, [refresh]);
 
   if (loading) {
     return (
@@ -87,7 +92,7 @@ export default function AdminDashboard() {
         />
         <StatCard 
           title="Market Volume" 
-          value="₱0" 
+          value={`₱${(stats?.marketVolume || 0).toLocaleString()}`} 
           icon="trending-up" 
           color="#FFA000"
         />
@@ -145,8 +150,8 @@ export default function AdminDashboard() {
 
       {/* User Growth (Line Chart) */}
       <View className="m-4 bg-white p-6 rounded-3xl shadow-sm mb-10">
-        <Text className="text-lg font-bold text-gray-900 mb-2">New User Analytics</Text>
-        <Text className="text-sm text-gray-400 mb-6">Registration trend for the last 6 months</Text>
+        <Text className="text-lg font-bold text-gray-900 mb-2">User Registration History</Text>
+        <Text className="text-sm text-gray-400 mb-6">Real-time registration trend from profiles</Text>
         <LineChart
           data={lineData}
           height={180}
@@ -176,6 +181,36 @@ export default function AdminDashboard() {
             ),
           }}
         />
+      </View>
+
+      {/* Category Sales Section */}
+      <View className="m-4 bg-white p-6 rounded-3xl shadow-sm mb-10">
+        <Text className="text-lg font-bold text-gray-900 mb-2">Sold Category Analytics</Text>
+        <Text className="text-sm text-gray-400 mb-6">Total sales value per livestock category</Text>
+        
+        {stats?.categorySoldTotals.map((item, index) => (
+          <View key={index} className="flex-row items-center mb-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl">
+            <View className={`w-12 h-12 rounded-full items-center justify-center ${
+              item.label === 'Baktin' ? 'bg-green-100' : 
+              item.label === 'Lechonon' ? 'bg-blue-100' : 'bg-orange-100'
+            }`}>
+              <Text className="text-xl">
+                {item.label === 'Baktin' ? '🐷' : item.label === 'Lechonon' ? '🐖' : '🐽'}
+              </Text>
+            </View>
+            <View className="ml-4 flex-1">
+              <Text className="text-base font-bold text-gray-900 dark:text-white">{item.label}</Text>
+              <Text className="text-xs text-gray-500">{item.count} items sold</Text>
+            </View>
+            <View className="items-end">
+              <Text className="text-lg font-bold text-green-700">₱{item.value.toLocaleString()}</Text>
+              <View className="flex-row items-center">
+                <Ionicons name="trending-up" size={12} color="#10B981" />
+                <Text className="text-[10px] text-green-600 font-bold ml-0.5">Verified</Text>
+              </View>
+            </View>
+          </View>
+        ))}
       </View>
     </ScrollView>
   );
