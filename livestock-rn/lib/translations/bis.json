@@ -1,0 +1,37 @@
+{
+  "common": {
+    "save": "I-save",
+    "cancel": "Kanselahon",
+    "loading": "Nag-load...",
+    "error": "Sayop",
+    "success": "Malamposon"
+  },
+  "settings": {
+    "title": "Mga Setting",
+    "language": "Pinulongan",
+    "theme": "Tema",
+    "dark_mode": "Dark Mode",
+    "light": "Hayag",
+    "dark": "Kangitngit",
+    "system": "System"
+  },
+  "auth": {
+    "sign_out": "Mo-sign Out",
+    "sign_out_confirm": "Sigurado ka ba nga gusto nimo mo-sign out?"
+  },
+  "marketplace": {
+    "title": "Merkado",
+    "search": "Pangita og mga hayop...",
+    "no_listings": "Walay nakit-an nga listahan"
+  },
+  "nav": {
+    "map": "Mapa",
+    "marketplace": "Baligyaan",
+    "guidelines": "Giya",
+    "messages": "Mensahe",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "manage": "Dumala",
+    "settings": "Settings"
+  }
+}

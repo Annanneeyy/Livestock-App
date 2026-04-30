@@ -30,12 +30,12 @@ export default function ManageScreen() {
   const router = useRouter();
 
   return (
-    <View className="flex-1 bg-gray-50 p-4">
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900 p-4">
 
       {SECTIONS.map((section) => (
         <TouchableOpacity
           key={section.title}
-          className="bg-white rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100"
+          className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100 dark:border-gray-700"
           onPress={() => router.push(section.route as any)}
         >
           <View
@@ -45,8 +45,8 @@ export default function ManageScreen() {
             <Ionicons name={section.icon} size={28} color={section.color} />
           </View>
           <View className="flex-1">
-            <Text className="text-lg font-semibold text-gray-900">{section.title}</Text>
-            <Text className="text-sm text-gray-500">{section.subtitle}</Text>
+            <Text className="text-lg font-semibold text-gray-900 dark:text-white">{section.title}</Text>
+            <Text className="text-sm text-gray-500 dark:text-gray-400">{section.subtitle}</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
         </TouchableOpacity>

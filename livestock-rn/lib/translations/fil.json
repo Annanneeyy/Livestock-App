@@ -1,0 +1,37 @@
+{
+  "common": {
+    "save": "I-save",
+    "cancel": "Kanselahin",
+    "loading": "Naglo-load...",
+    "error": "Maling Hakbang",
+    "success": "Tagumpay"
+  },
+  "settings": {
+    "title": "Mga Setting",
+    "language": "Wika",
+    "theme": "Tema",
+    "dark_mode": "Dark Mode",
+    "light": "Maliwanag",
+    "dark": "Madilim",
+    "system": "System"
+  },
+  "auth": {
+    "sign_out": "Mag-sign Out",
+    "sign_out_confirm": "Sigurado ka bang gusto mong mag-sign out?"
+  },
+  "marketplace": {
+    "title": "Palengke",
+    "search": "Maghanap ng mga hayop...",
+    "no_listings": "Walang nahanap na listahan"
+  },
+  "nav": {
+    "map": "Mapa",
+    "marketplace": "Bilihan",
+    "guidelines": "Giya",
+    "messages": "Mensahe",
+    "profile": "Profile",
+    "dashboard": "Dashboard",
+    "manage": "Pamahalaan",
+    "settings": "Settings"
+  }
+}

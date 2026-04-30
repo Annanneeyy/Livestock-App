@@ -3,6 +3,7 @@ import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useNotifications } from '../lib/hooks/useNotifications';
+import { useAuth } from '../lib/hooks/useAuth';
 
 interface NotificationBellProps {
   color?: string;
@@ -10,11 +11,14 @@ interface NotificationBellProps {
 
 export default function NotificationBell({ color = '#FFFFFF' }: NotificationBellProps) {
   const { unreadCount } = useNotifications();
+  const { profile } = useAuth();
   const router = useRouter();
+
+  const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
 
   return (
     <TouchableOpacity 
-      onPress={() => router.push('/(farmer)/notifications')}
+      onPress={() => router.push(`/${rolePath}/notifications`)}
       style={styles.container}
     >
       <Ionicons name="notifications-outline" size={24} color={color} />

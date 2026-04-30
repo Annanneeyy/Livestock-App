@@ -1,10 +1,12 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
 import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../lib/hooks/useAuth';
 import type { Livestock } from '../types/database';
 import MapLegend from './MapLegend';
 
@@ -31,7 +33,10 @@ export default function LivestockMap() {
     latitude: number;
     longitude: number;
   } | null>(null);
+  const { profile } = useAuth();
+  const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
   const [showList, setShowList] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<Livestock | null>(null);
 
   const fetchListings = useCallback(async () => {
     const { data, error } = await supabase
@@ -55,7 +60,16 @@ export default function LivestockMap() {
   useEffect(() => {
     fetchListings();
     getUserLocation();
-  }, []);
+
+    // Listen for tab double-tap refresh
+    const subHome = DeviceEventEmitter.addListener('refresh_home', fetchListings);
+    const subMap = DeviceEventEmitter.addListener('refresh_map', fetchListings);
+
+    return () => {
+      subHome.remove();
+      subMap.remove();
+    };
+  }, [fetchListings]);
 
   // Refetch when screen comes back into focus
   useFocusEffect(
@@ -101,6 +115,7 @@ export default function LivestockMap() {
         }
         showsUserLocation
         showsMyLocationButton
+        onPress={() => setSelectedItem(null)}
       >
         {/* ESRI Satellite Tiles */}
         <UrlTile
@@ -109,70 +124,101 @@ export default function LivestockMap() {
           flipY={false}
         />
 
-        {mappedListings.map((item) => {
-          const firstImage = item.images?.[0]?.image_url;
-          return (
-            <Marker
-              key={item.id}
-              coordinate={{
-                latitude: Number(item.latitude),
-                longitude: Number(item.longitude),
-              }}
-            >
-              {/* Marker label: emoji + post name */}
-              <View className="items-center">
-                <View className="bg-white rounded-lg px-2 py-1 shadow-sm border border-gray-200 flex-row items-center">
-                  <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
-                  <Text className="text-xs font-semibold text-gray-800" numberOfLines={1}>
-                    {item.name}
-                  </Text>
-                </View>
-                <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200" />
+        {mappedListings.map((item) => (
+          <Marker
+            key={item.id}
+            coordinate={{
+              latitude: Number(item.latitude),
+              longitude: Number(item.longitude),
+            }}
+            onPress={() => setSelectedItem(item)}
+          >
+            {/* Marker label: emoji + post name */}
+            <View className="items-center">
+              <View className="bg-white dark:bg-gray-800 rounded-lg px-2 py-1 shadow-sm border border-gray-200 dark:border-gray-700 flex-row items-center">
+                <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
+                <Text className="text-xs font-semibold text-gray-800 dark:text-gray-100" numberOfLines={1}>
+                  {item.name}
+                </Text>
               </View>
+              <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200 dark:border-t-gray-700" />
+            </View>
 
-              {/* Custom callout with details */}
-              <Callout
-                tooltip
-                onPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
+            {/* Custom callout for Web/iOS fallback */}
+            <Callout
+              tooltip
+              onPress={() => router.push(`/${rolePath}/marketplace/${item.id}`)}
+            >
+              <View 
+                style={{ width: 180, paddingBottom: 5 }} 
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 border border-gray-100 dark:border-gray-700"
               >
-                <View className="bg-white rounded-xl shadow-lg p-3 w-56">
-                  {firstImage && (
-                    <Image
-                      source={{ uri: firstImage }}
-                      className="w-full h-28 rounded-lg mb-2"
-                      resizeMode="cover"
-                      style={{ width: '100%', height: 112, borderRadius: 8 }}
-                    />
-                  )}
-                  <Text className="text-base font-bold text-gray-900">{item.name}</Text>
-                  <Text className="text-sm text-gray-500 mt-0.5">{item.category}</Text>
-                  <Text className="text-lg font-bold text-green-700 mt-1">
-                    ₱{Number(item.price).toLocaleString()}
-                  </Text>
-                  {item.seller && (
-                    <Text className="text-xs text-gray-400 mt-1">
-                      {item.seller.first_name} {item.seller.last_name}
-                      {item.seller.barangay ? ` • ${item.seller.barangay}` : ''}
-                    </Text>
-                  )}
-                  <View className="bg-green-700 rounded-md py-1.5 mt-2 items-center">
-                    <Text className="text-white text-xs font-semibold">Tap to View Details</Text>
-                  </View>
+                <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={1}>{item.name}</Text>
+                <Text className="text-xs text-gray-500 mt-0.5">{item.category}</Text>
+                <Text className="text-sm font-bold text-green-700 mt-1">
+                  ₱{Number(item.price).toLocaleString()}
+                </Text>
+                <View className="mt-2 bg-green-700 rounded-lg py-1 items-center">
+                  <Text className="text-white text-[10px] font-bold uppercase">View Details</Text>
                 </View>
-              </Callout>
-            </Marker>
-          );
-        })}
+              </View>
+            </Callout>
+          </Marker>
+        ))}
       </MapView>
 
       <MapLegend />
 
+      {/* Selected Item Card (Bottom Sheet style for Android/iOS) */}
+      {selectedItem && (
+        <View className="absolute bottom-6 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+          <TouchableOpacity 
+            className="flex-row"
+            onPress={() => router.push(`/${rolePath}/marketplace/${selectedItem.id}`)}
+            activeOpacity={0.9}
+          >
+            {selectedItem.images?.[0]?.image_url ? (
+              <Image 
+                source={{ uri: selectedItem.images[0].image_url }} 
+                className="w-24 h-24"
+                resizeMode="cover"
+              />
+            ) : (
+              <View className="w-24 h-24 bg-gray-100 dark:bg-gray-700 items-center justify-center">
+                <Text className="text-2xl">{CATEGORY_EMOJI[selectedItem.category] || '🐷'}</Text>
+              </View>
+            )}
+            <View className="flex-1 p-3">
+              <View className="flex-row justify-between items-start">
+                <View className="flex-1">
+                  <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={1}>
+                    {selectedItem.name}
+                  </Text>
+                  <Text className="text-xs text-gray-500">{selectedItem.category}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setSelectedItem(null)} className="p-1">
+                  <Ionicons name="close-circle" size={24} color="#9CA3AF" />
+                </TouchableOpacity>
+              </View>
+              <View className="flex-row justify-between items-center mt-2">
+                <Text className="text-lg font-bold text-green-700">
+                  ₱{Number(selectedItem.price).toLocaleString()}
+                </Text>
+                <View className="bg-green-700 rounded-full px-4 py-1.5 shadow-sm">
+                  <Text className="text-white text-xs font-bold uppercase tracking-wider">Details</Text>
+                </View>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Toggle list button */}
       <TouchableOpacity
-        className="absolute top-4 right-4 bg-white rounded-lg px-3 py-2 shadow-md flex-row items-center"
+        className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 shadow-md flex-row items-center border border-gray-100 dark:border-gray-700"
         onPress={() => setShowList(!showList)}
       >
-        <Text className="text-green-700 font-medium mr-1">
+        <Text className="text-green-700 dark:text-green-400 font-medium mr-1">
           {showList ? 'Hide' : 'All'} ({allListings.length})
         </Text>
         <Text className="text-sm">{showList ? '🗺️' : '📋'}</Text>
@@ -180,7 +226,7 @@ export default function LivestockMap() {
 
       {/* Listings panel */}
       {showList && (
-        <View className="flex-1 bg-white">
+        <View className="flex-1 bg-white dark:bg-gray-900">
           <FlatList
             data={allListings}
             keyExtractor={(item) => item.id}
@@ -189,22 +235,22 @@ export default function LivestockMap() {
               const firstImage = item.images?.[0]?.image_url;
               return (
                 <TouchableOpacity
-                  className="flex-row bg-white rounded-lg border border-gray-100 mb-2 overflow-hidden"
-                  onPress={() => router.push(`/(farmer)/marketplace/${item.id}`)}
+                  className="flex-row bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 mb-2 overflow-hidden"
+                  onPress={() => router.push(`/${rolePath}/marketplace/${item.id}`)}
                 >
                   {firstImage ? (
                     <Image source={{ uri: firstImage }} className="w-16 h-16" resizeMode="cover" />
                   ) : (
-                    <View className="w-16 h-16 bg-gray-100 items-center justify-center">
+                    <View className="w-16 h-16 bg-gray-100 dark:bg-gray-700 items-center justify-center">
                       <Text className="text-xl">{CATEGORY_EMOJI[item.category] || '🐷'}</Text>
                     </View>
                   )}
                   <View className="flex-1 p-2 justify-center">
-                    <Text className="text-sm font-semibold text-gray-900" numberOfLines={1}>{item.name}</Text>
+                    <Text className="text-sm font-semibold text-gray-900 dark:text-white" numberOfLines={1}>{item.name}</Text>
                     <View className="flex-row items-center mt-0.5">
-                      <Text className="text-xs text-gray-500">{item.category}</Text>
+                      <Text className="text-xs text-gray-500 dark:text-gray-400">{item.category}</Text>
                       {item.seller?.barangay && (
-                        <Text className="text-xs text-gray-400"> • {item.seller.barangay}</Text>
+                        <Text className="text-xs text-gray-400 dark:text-gray-500"> • {item.seller.barangay}</Text>
                       )}
                       {!item.latitude && (
                         <Text className="text-xs text-amber-500 ml-1">📍 No location</Text>
@@ -219,7 +265,7 @@ export default function LivestockMap() {
             }}
             ListEmptyComponent={
               <View className="items-center py-10">
-                <Text className="text-gray-400">No listings yet</Text>
+                <Text className="text-gray-400 dark:text-gray-500">No listings yet</Text>
               </View>
             }
           />

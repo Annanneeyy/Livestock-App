@@ -1,4 +1,6 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
+
 export default function ManageLayout() {
   return (
     <Stack
@@ -6,6 +8,8 @@ export default function ManageLayout() {
         headerStyle: { backgroundColor: '#1B5E20' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
+        headerBackTitle: 'Back',
+        headerRight: () => <NotificationBell />,
       }}
     >
       <Stack.Screen 
@@ -13,16 +17,16 @@ export default function ManageLayout() {
         options={{ title: 'Content Management' }} 
       />
       <Stack.Screen 
-        name="health" 
-        options={{ title: 'Health Guidelines' }} 
+        name="health/index" 
+        options={{ title: 'Health' }} 
       />
       <Stack.Screen 
-        name="announcements" 
+        name="announcements/index" 
         options={{ title: 'Announcements' }} 
       />
       <Stack.Screen 
-        name="feeding" 
-        options={{ title: 'Feeding Information' }} 
+        name="feeding/index" 
+        options={{ title: 'Feeding' }} 
       />
     </Stack>
   );

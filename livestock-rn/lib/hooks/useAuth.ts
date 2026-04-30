@@ -22,9 +22,8 @@ export function useAuth() {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
-        console.error('Auth session error:', error.message);
-        // If there's an error (like invalid refresh token), ensure local storage is cleared
-        supabase.auth.signOut().catch(() => {}); 
+        // If there's an error (like invalid refresh token), just clear state.
+        // Avoid calling signOut() here to prevent potential recursive loops or extra error logs.
         setState({ session: null, user: null, profile: null, loading: false });
         return;
       }

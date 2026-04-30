@@ -4,8 +4,8 @@ import { supabase } from '../supabase';
 export interface AdminStats {
   totalLivestock: number;
   totalUsers: number;
-  totalTransactions: number; // Placeholder if no transactions table yet
-  categoryBreakdown: { label: string; value: number }[];
+  marketVolume: number;
+  categorySoldTotals: { label: string; value: number; count: number }[];
   barangayBreakdown: { label: string; value: number }[];
   roleDistribution: { label: string; value: number }[];
   userGrowth: { label: string; value: number }[];
@@ -20,16 +20,30 @@ export function useAdminStats() {
     try {
       setLoading(true);
       
-      // 1. Fetch Livestock Count & Category Breakdown
+      // 1. Fetch Livestock Data
       const { data: livestockData, error: lError } = await supabase
         .from('livestock')
-        .select('category');
+        .select('category, price, is_available');
       
       if (lError) throw lError;
 
-      const catCounts: Record<string, number> = {};
+      let totalVolume = 0;
+      const soldCounts: Record<string, { amount: number; count: number }> = {
+        'Baktin': { amount: 0, count: 0 },
+        'Lechonon': { amount: 0, count: 0 },
+        'Lapaon': { amount: 0, count: 0 },
+      };
+
       livestockData.forEach(l => {
-        catCounts[l.category] = (catCounts[l.category] || 0) + 1;
+        const price = Number(l.price) || 0;
+        totalVolume += price;
+        
+        if (!l.is_available) {
+          if (soldCounts[l.category]) {
+            soldCounts[l.category].amount += price;
+            soldCounts[l.category].count += 1;
+          }
+        }
       });
 
       // 2. Fetch User Profiles for Role & Barangay breakdown
@@ -49,18 +63,42 @@ export function useAdminStats() {
         }
       });
 
-      // 3. User Growth (Mock or group by month)
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
-      const userGrowth = months.map((month, idx) => ({
-        label: month,
-        value: 10 + (idx * 5) + Math.floor(Math.random() * 10)
+      // 3. User Growth (Last 6 months)
+      const now = new Date();
+      const last6Months = Array.from({ length: 6 }, (_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        return {
+          month: d.toLocaleString('default', { month: 'short' }),
+          year: d.getFullYear(),
+          monthIdx: d.getMonth(),
+          count: 0
+        };
+      }).reverse();
+
+      profileData.forEach(p => {
+        const createdDate = new Date(p.created_at);
+        const monthMatch = last6Months.find(m => 
+          m.monthIdx === createdDate.getMonth() && m.year === createdDate.getFullYear()
+        );
+        if (monthMatch) {
+          monthMatch.count += 1;
+        }
+      });
+
+      const userGrowth = last6Months.map(m => ({
+        label: m.month,
+        value: m.count
       }));
 
       setStats({
         totalLivestock: livestockData.length,
         totalUsers: profileData.length,
-        totalTransactions: 0, // Placeholder
-        categoryBreakdown: Object.entries(catCounts).map(([label, value]) => ({ label, value })),
+        marketVolume: totalVolume,
+        categorySoldTotals: Object.entries(soldCounts).map(([label, stats]) => ({ 
+          label, 
+          value: stats.amount, 
+          count: stats.count 
+        })),
         barangayBreakdown: Object.entries(barangayCounts).map(([label, value]) => ({ label, value })),
         roleDistribution: Object.entries(roleCounts).map(([label, value]) => ({ label, value })),
         userGrowth

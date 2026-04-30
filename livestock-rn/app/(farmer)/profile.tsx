@@ -1,23 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, Image, TextInput, Alert,
   ScrollView, ActivityIndicator, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import { decode } from 'base64-arraybuffer';
 import { useAuth } from '../../lib/hooks/useAuth';
+import { useTheme } from '../../lib/hooks/useTheme';
 import { supabase } from '../../lib/supabase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function ProfileScreen() {
   const { profile, user, signOut, refreshProfile } = useAuth();
+  const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useTheme();
   const [editing, setEditing] = useState(false);
   const [firstName, setFirstName] = useState(profile?.first_name || '');
   const [lastName, setLastName] = useState(profile?.last_name || '');
   const [purok, setPurok] = useState(profile?.purok || '');
   const [barangay, setBarangay] = useState(profile?.barangay || '');
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.first_name || '');
+      setLastName(profile.last_name || '');
+      setPurok(profile.purok || '');
+      setBarangay(profile.barangay || '');
+    }
+  }, [profile]);
+
+  const changeLanguage = async (lng: string) => {
+    await i18n.changeLanguage(lng);
+    await AsyncStorage.setItem('user-language', lng);
+  };
 
   const handleSave = async () => {
     if (!user) return;
@@ -96,9 +115,12 @@ export default function ProfileScreen() {
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView 
+      className="flex-1 bg-gray-50 dark:bg-gray-900"
+      contentContainerStyle={Platform.OS === 'web' ? { paddingBottom: 100 } : undefined}
+    >
       {/* Avatar */}
-      <View className="items-center py-8 bg-white">
+      <View className="items-center py-8 bg-white dark:bg-gray-800">
         <TouchableOpacity onPress={handleAvatarPick}>
           {profile.avatar_url ? (
             <Image
@@ -116,7 +138,7 @@ export default function ProfileScreen() {
             <Ionicons name="camera" size={16} color="#fff" />
           </View>
         </TouchableOpacity>
-        <Text className="text-xl font-bold text-gray-900 mt-3">
+        <Text className="text-xl font-bold text-gray-900 dark:text-white mt-3">
           {profile.first_name} {profile.last_name}
         </Text>
         <Text className="text-sm text-gray-500">{user?.email}</Text>
@@ -130,7 +152,7 @@ export default function ProfileScreen() {
             <View className="mb-3">
               <Text className="text-sm font-medium text-gray-700 mb-1">First Name</Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-white"
+                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 dark:text-white"
                 value={firstName}
                 onChangeText={setFirstName}
               />
@@ -138,7 +160,7 @@ export default function ProfileScreen() {
             <View className="mb-3">
               <Text className="text-sm font-medium text-gray-700 mb-1">Last Name</Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-white"
+                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 dark:text-white"
                 value={lastName}
                 onChangeText={setLastName}
               />
@@ -146,7 +168,7 @@ export default function ProfileScreen() {
             <View className="mb-3">
               <Text className="text-sm font-medium text-gray-700 mb-1">Purok</Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-white"
+                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 dark:text-white"
                 value={purok}
                 onChangeText={setPurok}
               />
@@ -154,14 +176,14 @@ export default function ProfileScreen() {
             <View className="mb-3">
               <Text className="text-sm font-medium text-gray-700 mb-1">Barangay</Text>
               <TextInput
-                className="border border-gray-300 rounded-lg px-4 py-3 bg-white"
+                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 dark:text-white"
                 value={barangay}
                 onChangeText={setBarangay}
               />
             </View>
             <View className="flex-row gap-3">
               <TouchableOpacity
-                className="flex-1 bg-gray-200 rounded-lg py-3 items-center"
+                className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-lg py-3 items-center"
                 onPress={() => setEditing(false)}
               >
                 <Text className="font-semibold text-gray-700">Cancel</Text>
@@ -181,7 +203,7 @@ export default function ProfileScreen() {
           </>
         ) : (
           <>
-            <View className="bg-white rounded-xl p-4 mb-3">
+            <View className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3">
               <InfoRow label="Barangay" value={profile.barangay || 'Not set'} />
               <InfoRow label="Purok" value={profile.purok || 'Not set'} />
               <InfoRow label="Municipality" value={profile.municipality} />
@@ -190,30 +212,75 @@ export default function ProfileScreen() {
             </View>
 
             <TouchableOpacity
-              className="bg-green-700 rounded-lg py-3 items-center mb-3"
+              className="bg-green-700 rounded-lg py-3 items-center mb-6"
               onPress={() => setEditing(true)}
             >
               <Text className="text-white font-semibold">Edit Profile</Text>
             </TouchableOpacity>
+
+            {/* Language Selection */}
+            <Text className="text-sm font-semibold text-gray-400 mb-2 uppercase ml-1">{t('settings.language')}</Text>
+            <View className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+              {[
+                { label: 'English', code: 'en' },
+                { label: 'Filipino', code: 'fil' },
+                { label: 'Bisaya', code: 'bis' }
+              ].map((lang, idx) => (
+                <TouchableOpacity
+                  key={lang.code}
+                  className={`flex-row items-center p-4 ${idx < 2 ? 'border-b border-gray-50 dark:border-gray-700' : ''}`}
+                  onPress={() => changeLanguage(lang.code)}
+                >
+                  <Text className={`flex-1 text-base ${i18n.language === lang.code ? 'text-green-700 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {lang.label}
+                  </Text>
+                  {i18n.language === lang.code && <Ionicons name="checkmark" size={20} color="#2E7D32" />}
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Theme Selection */}
+            <Text className="text-sm font-semibold text-gray-400 mb-2 uppercase ml-1">{t('settings.theme')}</Text>
+            <View className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+              {[
+                { label: t('settings.light'), value: 'light', icon: 'sunny-outline' },
+                { label: t('settings.dark'), value: 'dark', icon: 'moon-outline' }
+              ].map((item, idx) => (
+                <TouchableOpacity
+                  key={item.value}
+                  className={`flex-row items-center p-4 ${idx < 1 ? 'border-b border-gray-50 dark:border-gray-700' : ''}`}
+                  onPress={() => setTheme(item.value as any)}
+                >
+                  <Ionicons name={item.icon as any} size={20} color={theme === item.value ? '#2E7D32' : '#4B5563'} />
+                  <Text className={`flex-1 ml-3 text-base ${theme === item.value ? 'text-green-700 font-semibold' : 'text-gray-700 dark:text-gray-300'}`}>
+                    {item.label}
+                  </Text>
+                  {theme === item.value && <Ionicons name="checkmark" size={20} color="#2E7D32" />}
+                </TouchableOpacity>
+              ))}
+            </View>
           </>
         )}
 
         <TouchableOpacity
-          className="bg-red-50 rounded-lg py-3 items-center mt-4"
+          className="bg-red-50 dark:bg-red-900/20 rounded-lg py-3 items-center mt-2 mb-10 flex-row justify-center"
           onPress={() => {
             if (Platform.OS === 'web') {
-              if (confirm('Are you sure you want to sign out?')) {
+              if (confirm(t('auth.sign_out_confirm'))) {
                 signOut();
               }
             } else {
-              Alert.alert('Sign Out', 'Are you sure?', [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Sign Out', style: 'destructive', onPress: signOut },
+              Alert.alert(t('auth.sign_out'), t('auth.sign_out_confirm'), [
+                { text: t('common.cancel'), style: 'cancel' },
+                { text: t('auth.sign_out'), style: 'destructive', onPress: signOut },
               ]);
             }
           }}
         >
-          <Text className="text-red-600 font-semibold">Sign Out</Text>
+          <Ionicons name="log-out-outline" size={20} color="#DC2626" />
+          <Text className="ml-2 text-red-600 font-semibold" style={{ flexShrink: 0 }}>
+            {t('auth.sign_out') || 'Sign Out'}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
@@ -224,7 +291,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row justify-between py-2 border-b border-gray-50 last:border-0">
       <Text className="text-sm text-gray-500">{label}</Text>
-      <Text className="text-sm font-medium text-gray-900">{value}</Text>
+      <Text className="text-sm font-medium text-gray-900 dark:text-white">{value}</Text>
     </View>
   );
 }

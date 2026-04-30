@@ -1,31 +1,32 @@
 import { Stack } from 'expo-router';
 import NotificationBell from '../../../components/NotificationBell';
 
-export default function SettingsLayout() {
+export default function MarketplaceLayout() {
   return (
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: '#1B5E20' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
+        headerBackTitle: 'Back',
         headerRight: () => <NotificationBell />,
       }}
     >
       <Stack.Screen 
         name="index" 
-        options={{ title: 'Settings' }} 
+        options={{ title: 'Marketplace' }} 
       />
       <Stack.Screen 
-        name="profile" 
-        options={{ title: 'Profile Details' }} 
+        name="[id]" 
+        options={{ title: 'Marketplace Details' }} 
       />
       <Stack.Screen 
-        name="notifications" 
-        options={{ title: 'Notification Preferences' }} 
+        name="create" 
+        options={{ title: 'New Listing' }} 
       />
       <Stack.Screen 
-        name="admins" 
-        options={{ title: 'Manage Admins' }} 
+        name="pick-location" 
+        options={{ title: 'Select Location' }} 
       />
     </Stack>
   );
