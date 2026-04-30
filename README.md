@@ -1,16 +1,23 @@
-# untitled
+# Livestock App Project
 
-A new Flutter project.
+This repository contains two versions of the Livestock Marketplace application:
+
+1.  **React Native (Recommended)**: Located in the `livestock-rn/` directory. This is the active version using Expo and Supabase.
+2.  **Flutter (Legacy)**: Located in the root directory. This uses Firebase.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To set up the project, please follow the detailed guide in the installation documentation:
 
-A few resources to get you started if this is your first Flutter project:
+👉 **[INSTALLATION.md](./INSTALLATION.md)**
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## React Native Build Scripts
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you are working in the `livestock-rn` directory, you can use the following commands:
+
+- `npm run start`: Start the development server.
+- `npm run build:apk`: Build an Android APK (requires EAS).
+- `npm run build:ipa`: Build an iOS IPA (requires EAS and Apple Developer account).
+
+---
+*Last updated: 2026-04-30*

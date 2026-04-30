@@ -81,7 +81,55 @@ npx expo start
 
 ---
 
-## 5. Project Structure
+## 5. Building for Android (APK)
+
+To generate a standalone Android APK file for testing or distribution, we use **EAS (Expo Application Services)**.
+
+### Step 5.1: Install EAS CLI
+If you haven't installed it yet:
+```bash
+npm install -g eas-cli
+```
+
+### Step 5.2: Login to Expo
+```bash
+eas login
+```
+
+### Step 5.3: Build the APK
+Run the following command to start the build process in the cloud:
+```bash
+npm run build:apk
+```
+*Note: This uses the `preview` profile defined in `eas.json` to generate an `.apk` file instead of an `.aab` bundle.*
+
+### Step 5.4: Download the APK
+Once the build is finished (this can take 10-15 minutes), the terminal will provide a **download link** or a **QR code** to download the APK directly to your device.
+
+---
+
+## 6. Building for iOS (IPA)
+
+To generate a standalone iOS IPA file for internal testing (Ad Hoc distribution), you must have a **paid Apple Developer Program membership**.
+
+### Step 6.1: Build the IPA
+Run the following command in the `livestock-rn` directory:
+```bash
+npm run build:ipa
+```
+
+### Step 6.2: Interactive Setup
+Building for iOS is an interactive process. EAS will prompt you to:
+1.  **Log in to your Apple ID**: This must be an account with an active developer subscription.
+2.  **Select your Team**: If you have multiple teams, select the correct one.
+3.  **Handle Credentials**: EAS will ask if you want it to manage your build credentials (Distribution Certificate and Provisioning Profile). Select **Yes**.
+
+### Step 6.3: Install on Device
+Once the build is complete, you will receive a QR code. For Ad Hoc builds (Internal Distribution), the device must be registered in your Apple Developer portal. EAS will guide you through registering the device if it's not already added.
+
+---
+
+## 7. Project Structure
 
 - `lib/`: Shared logic and utility functions.
 - `app/`: Expo Router pages and navigation.
@@ -91,12 +139,13 @@ npx expo start
 
 ---
 
-## 6. Troubleshooting
+## 8. Troubleshooting
 
+- **Apple Developer Team Error**: If you see `You have no team associated with your Apple account`, it means your Apple ID is not enrolled in the paid Apple Developer Program.
 - **Storage Errors**: Ensure that the `avatars`, `livestock-images`, and `chat-images` buckets were created in Supabase (the SQL schema should have done this automatically).
 - **Authentication**: If user profiles are not being created upon signup, check the `on_auth_user_created` trigger in the SQL Editor.
 - **Realtime**: If chat or notifications are not updating instantly, ensure "Realtime" is enabled for the `chats`, `messages`, and `notifications` tables in the Supabase Dashboard under **Database** > **Replication**.
 
 ---
 
-*Document generated on 2026-04-07*
+*Document updated on 2026-04-30*

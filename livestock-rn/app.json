@@ -19,7 +19,8 @@
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "This app needs your location to show nearby livestock listings on the map.",
         "NSCameraUsageDescription": "This app needs camera access to take photos of your livestock.",
-        "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload livestock images."
+        "NSPhotoLibraryUsageDescription": "This app needs photo library access to upload livestock images.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -28,11 +29,17 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.livestock.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCIM5Cc5buKqlVJD784lgGH1Rhm6hgnrkQ"
+        }
+      },
       "permissions": [
-        "ACCESS_FINE_LOCATION",
-        "ACCESS_COARSE_LOCATION",
-        "CAMERA",
-        "READ_EXTERNAL_STORAGE"
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -46,6 +53,12 @@
         }
       ],
       "expo-localization"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "2c49d847-4640-45e8-99a7-d100f47b3869"
+      }
+    }
   }
 }
