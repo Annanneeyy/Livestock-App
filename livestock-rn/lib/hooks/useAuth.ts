@@ -124,11 +124,33 @@ export function useAuth() {
     setState((prev) => ({ ...prev, profile }));
   }, [state.user]);
 
+  const resetPassword = useCallback(async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  }, []);
+
+  const verifyResetOtp = useCallback(async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'recovery',
+    });
+    if (error) throw error;
+  }, []);
+
+  const updatePassword = useCallback(async (password: string) => {
+    const { error } = await supabase.auth.updateUser({ password });
+    if (error) throw error;
+  }, []);
+
   return {
     ...state,
     signIn,
     signUp,
     signOut,
+    resetPassword,
+    verifyResetOtp,
+    updatePassword,
     refreshProfile,
   };
 }

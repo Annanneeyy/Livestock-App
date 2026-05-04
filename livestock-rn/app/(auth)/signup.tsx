@@ -46,7 +46,14 @@ export default function SignUpScreen() {
       });
       // Auth state change will redirect to verify-email via the auth gate
     } catch (error: any) {
-      Alert.alert('Sign Up Failed', error.message || 'An error occurred.');
+      if (error.message?.includes('email rate limit exceeded')) {
+        Alert.alert(
+          'Sign Up Limit Reached',
+          'Too many signup attempts. Please try again later or contact support to increase limits in the Supabase dashboard.'
+        );
+      } else {
+        Alert.alert('Sign Up Failed', error.message || 'An error occurred.');
+      }
     } finally {
       setLoading(false);
     }

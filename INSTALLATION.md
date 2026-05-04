@@ -37,6 +37,16 @@ The backend uses Supabase for Authentication, Database, and Storage.
 4. Paste it into the editor and click **Run**.
    - *Note: This will create all necessary tables, indexes, RLS policies, triggers, and storage buckets.*
 
+### Step 2.3: Configure Authentication (OTP & Rate Limits)
+To ensure the "Forgot Password" and "Signup" flows work correctly:
+1.  **Email Templates**:
+    *   Go to **Authentication** > **Email Templates**.
+    *   Select **Reset Password**.
+    *   Change the message body to include `{{ .Token }}` instead of a link. This allows users to enter a 6-digit code directly in the app.
+2.  **Rate Limits (For Testing)**:
+    *   If you see "email rate limit exceeded", go to **Authentication** > **Settings** > **Rate Limits**.
+    *   Increase the **Email Rate Limit** or disable **Confirm Email** under **User Signups** during development.
+
 ---
 
 ## 3. Frontend Setup (React Native / Expo)
@@ -143,9 +153,12 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
 
 - **Apple Developer Team Error**: If you see `You have no team associated with your Apple account`, it means your Apple ID is not enrolled in the paid Apple Developer Program.
 - **Storage Errors**: Ensure that the `avatars`, `livestock-images`, and `chat-images` buckets were created in Supabase (the SQL schema should have done this automatically).
-- **Authentication**: If user profiles are not being created upon signup, check the `on_auth_user_created` trigger in the SQL Editor.
+- **Authentication**: 
+  - If user profiles are not being created upon signup, check the `on_auth_user_created` trigger in the SQL Editor.
+  - **Email Rate Limit Exceeded**: This occurs when too many signup/reset attempts happen in a short time. Increase the limit in the Supabase Dashboard (Auth > Settings > Rate Limits) or disable "Confirm email" for testing.
+  - **Password Reset Link Not Working**: We have switched to **OTP-based reset**. Ensure your Supabase Email Template includes `{{ .Token }}`.
 - **Realtime**: If chat or notifications are not updating instantly, ensure "Realtime" is enabled for the `chats`, `messages`, and `notifications` tables in the Supabase Dashboard under **Database** > **Replication**.
 
 ---
 
-*Document updated on 2026-04-30*
+*Document updated on 2026-05-04*

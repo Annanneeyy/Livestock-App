@@ -42,7 +42,14 @@ export default function VerifyEmailScreen() {
       setResendCooldown(30);
       Alert.alert('Sent', 'Verification email has been resent.');
     } catch (error: any) {
-      Alert.alert('Error', error.message || 'Failed to resend email.');
+      if (error.message?.includes('email rate limit exceeded')) {
+        Alert.alert(
+          'Resend Limit Reached',
+          'Too many requests. Please wait a while before trying again or check your Supabase dashboard settings.'
+        );
+      } else {
+        Alert.alert('Error', error.message || 'Failed to resend email.');
+      }
     }
   };
 

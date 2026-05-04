@@ -51,10 +51,18 @@ function AuthGate() {
       }
     } else if (session && !session.user.email_confirmed_at) {
       // Signed in but email not verified
-      router.replace('/(auth)/verify-email');
+      // EXCEPT if we are on reset-password (which can happen after clicking a reset link)
+      if (segments[1] !== 'reset-password') {
+        router.replace('/(auth)/verify-email');
+      }
     } else if (profile) {
       // Signed in and verified — route by role
       if (inAuthGroup) {
+        // Don't redirect if we are on reset-password or forgot-password
+        if (segments[1] === 'reset-password' || segments[1] === 'forgot-password') {
+          return;
+        }
+        
         if (profile.role === 'admin') {
           router.replace('/(admin)/map');
         } else {

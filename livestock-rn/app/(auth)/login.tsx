@@ -3,10 +3,11 @@ import {
   View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView,
   Platform, ScrollView, Image, ActivityIndicator,
 } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { useAuth } from '../../lib/hooks/useAuth';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -74,6 +75,12 @@ export default function LoginScreen() {
               secureTextEntry
               textContentType="password"
             />
+            <TouchableOpacity 
+              className="mt-2 self-end"
+              onPress={() => router.push('/(auth)/forgot-password')}
+            >
+              <Text className="text-green-700 text-sm font-medium">Forgot Password?</Text>
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
