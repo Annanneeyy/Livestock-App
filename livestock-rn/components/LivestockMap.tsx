@@ -38,6 +38,10 @@ export default function LivestockMap() {
   const [showList, setShowList] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Livestock | null>(null);
 
+  const openListing = useCallback((id: string) => {
+    router.push(`/${rolePath}/marketplace/${id}`);
+  }, [router, rolePath]);
+
   const fetchListings = useCallback(async () => {
     const { data, error } = await supabase
       .from('livestock')
@@ -147,10 +151,10 @@ export default function LivestockMap() {
             {/* Custom callout for Web/iOS fallback */}
             <Callout
               tooltip
-              onPress={() => router.push(`/${rolePath}/marketplace/${item.id}`)}
+              onPress={() => openListing(item.id)}
             >
-              <View 
-                style={{ width: 180, paddingBottom: 5 }} 
+              <View
+                style={{ width: 180, paddingBottom: 5 }}
                 className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-3 border border-gray-100 dark:border-gray-700"
               >
                 <Text className="text-base font-bold text-gray-900 dark:text-white" numberOfLines={1}>{item.name}</Text>
@@ -174,7 +178,7 @@ export default function LivestockMap() {
         <View className="absolute bottom-6 left-4 right-4 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
           <TouchableOpacity 
             className="flex-row"
-            onPress={() => router.push(`/${rolePath}/marketplace/${selectedItem.id}`)}
+            onPress={() => openListing(selectedItem.id)}
             activeOpacity={0.9}
           >
             {selectedItem.images?.[0]?.image_url ? (
@@ -236,7 +240,7 @@ export default function LivestockMap() {
               return (
                 <TouchableOpacity
                   className="flex-row bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700 mb-2 overflow-hidden"
-                  onPress={() => router.push(`/${rolePath}/marketplace/${item.id}`)}
+                  onPress={() => openListing(item.id)}
                 >
                   {firstImage ? (
                     <Image source={{ uri: firstImage }} className="w-16 h-16" resizeMode="cover" />

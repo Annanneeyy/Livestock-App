@@ -129,7 +129,7 @@ export default function FarmerLayout() {
       <Tabs.Screen
         name="notifications/index"
         options={{
-          tabBarButton: () => null,
+          href: null,
           headerShown: true,
           title: 'Notifications',
         }}

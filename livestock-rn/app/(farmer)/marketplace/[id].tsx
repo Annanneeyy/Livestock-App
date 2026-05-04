@@ -58,11 +58,23 @@ export default function PostDetailScreen() {
 
   return (
     <ScrollView className="flex-1 bg-white dark:bg-gray-900">
-      <Stack.Screen 
-        options={{ 
+      <Stack.Screen
+        options={{
           title: data.name || 'Post Details',
-          headerBackVisible: true, // Force back button visibility
-        }} 
+          headerBackVisible: true,
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => {
+                if (router.canGoBack()) router.back();
+                else router.replace(`/${rolePath}/marketplace`);
+              }}
+              hitSlop={10}
+              style={{ paddingHorizontal: 8 }}
+            >
+              <Ionicons name="chevron-back" size={26} color="#fff" />
+            </TouchableOpacity>
+          ),
+        }}
       />
       <ImageGallery images={data.images || []} />
 

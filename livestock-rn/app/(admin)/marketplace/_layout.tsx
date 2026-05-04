@@ -4,6 +4,7 @@ import NotificationBell from '../../../components/NotificationBell';
 export default function MarketplaceLayout() {
   return (
     <Stack
+      initialRouteName="index"
       screenOptions={{
         headerStyle: { backgroundColor: '#1B5E20' },
         headerTintColor: '#fff',
