@@ -7,7 +7,6 @@ export default function GuidelinesScreen() {
 
   return (
     <View className="flex-1 bg-gray-50 dark:bg-gray-900 p-4">
-      <Text className="text-xl font-bold text-green-800 dark:text-green-400 mb-4">Guidelines</Text>
 
       <TouchableOpacity
         className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100 dark:border-gray-700"

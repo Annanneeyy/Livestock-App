@@ -70,7 +70,14 @@ export function useAuth() {
       console.error('Error fetching profile:', error.message);
       return null;
     }
-    return data as Profile;
+
+    if (data) {
+      return {
+        ...data,
+        role: (data.role as string)?.toLowerCase() as Profile['role']
+      } as Profile;
+    }
+    return null;
   };
 
   const signIn = useCallback(async (email: string, password: string) => {

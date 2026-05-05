@@ -11,7 +11,8 @@ export default function GuidelinesLayout() {
       }}
     >
       <Stack.Screen name="index" options={{ title: 'Guidelines' }} />
-      <Stack.Screen name="health" options={{ title: 'Health' }} />
+      <Stack.Screen name="health" options={{ headerShown: false }} />
+      <Stack.Screen name="feeding" options={{ headerShown: false }} />
     </Stack>
   );
 }

@@ -57,15 +57,21 @@ function AuthGate() {
       }
     } else if (profile) {
       // Signed in and verified — route by role
-      if (inAuthGroup) {
-        // Don't redirect if we are on reset-password or forgot-password
-        if (segments[1] === 'reset-password' || segments[1] === 'forgot-password') {
-          return;
-        }
-        
-        if (profile.role === 'admin') {
+      const role = profile.role?.toLowerCase();
+      const inFarmerGroup = segments[0] === '(farmer)';
+      const inAdminGroup = segments[0] === '(admin)';
+      
+      // Don't redirect if we are on reset-password or forgot-password
+      if (segments[1] === 'reset-password' || segments[1] === 'forgot-password') {
+        return;
+      }
+
+      if (role === 'admin') {
+        if (!inAdminGroup) {
           router.replace('/(admin)/map');
-        } else {
+        }
+      } else {
+        if (!inFarmerGroup) {
           router.replace('/(farmer)/home');
         }
       }

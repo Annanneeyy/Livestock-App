@@ -19,5 +19,10 @@ If you are working in the `livestock-rn` directory, you can use the following co
 - `npm run build:apk`: Build an Android APK (requires EAS).
 - `npm run build:ipa`: Build an iOS IPA (requires EAS and Apple Developer account).
 
+### Latest Features (May 2026)
+- **Radius-Based Map Filtering**: Users can now filter livestock listings within 5km, 10km, 25km, or 50km of their current location.
+- **Unified Map Controls**: Streamlined interface with inline Legend and Radius dropdowns.
+- **Enhanced Web Support**: Custom markers on web now match the native mobile experience using emojis and high-fidelity pins.
+
 ---
-*Last updated: 2026-04-30*
+*Last updated: 2026-05-05*

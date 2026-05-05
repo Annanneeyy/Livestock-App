@@ -30,14 +30,22 @@ This feature introduces the ability for users to filter livestock listings on th
 ### 4. Custom Web Marker Icons
 - Updated `NativeMap.web.tsx` to replace default Leaflet blue pins with **Custom DivIcons**.
 - Marker icons on web now match the native look:
-    - White rounded tooltip-style container.
+    - Circular white container (`rounded-full`).
     - Category emoji (e.g., 🐷 for Baktin).
-    - Listing name as a label.
     - Centered bottom-tip anchor for accurate location pointing.
+- Removed text labels from markers to ensure consistency with the native app's simplified icon-only design.
 
 ### 5. Strict Platform Consistency
 - Ensured the filtering logic applies to both the **Map Markers** and the **Toggleable List View**.
 - If a radius is set but the user's location is unavailable, the map strictly hides listings until the location is resolved (unless set to "Any").
+
+### 6. Android Marker Layout Fixes & Simplification
+- **Resolved Android Cut-off**: Fixed a bug where livestock names were being truncated on Android markers due to internal `react-native-maps` layout constraints.
+- **Icon-Only markers**: Transitioned all map markers to a simplified icon-only design (Emoji within a circle). This provides:
+    - A cleaner, modern map interface.
+    - Absolute immunity to text-cutting issues on different screen densities.
+    - Cross-platform visual parity.
+- **Interactive Details**: Names and prices are still visible in the interactive callouts (popups) when a marker is selected.
 
 ## Technical Instructions for Future Updates
 
