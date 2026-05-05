@@ -60,12 +60,34 @@ const MapView = ({ children, style, initialRegion, onPress, mapType }: any) => {
   );
 };
 
-export const Marker = ({ coordinate, children, onPress }: any) => {
+const CATEGORY_EMOJI: Record<string, string> = {
+  Baktin: '🐷',
+  Lechonon: '🐖',
+  Lapaon: '🐽',
+};
+
+export const Marker = ({ coordinate, children, onPress, category, title }: any) => {
   if (!coordinate) return null;
+
+  const icon = category ? L.divIcon({
+    html: `
+      <div style="display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -100%);">
+        <div style="background: white; width: 32px; height: 32px; border-radius: 50%; border: 1px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center;">
+          <span style="font-size: 18px;">${CATEGORY_EMOJI[category] || '📍'}</span>
+        </div>
+        <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 5px solid white; margin-top: -1px;"></div>
+      </div>
+    `,
+    className: 'custom-leaflet-marker',
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+  }) : undefined;
+
   return (
     <LeafletMarker 
       position={[coordinate.latitude, coordinate.longitude]}
       eventHandlers={{ click: () => onPress?.() }}
+      icon={icon}
     >
       {children && (
         <Popup minWidth={200} closeButton={true}>

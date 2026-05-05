@@ -15,6 +15,7 @@ Before you begin, ensure you have the following installed:
 - **npm** or **yarn**
 - **Git**
 - **Expo Go** app (on your iOS or Android device for testing)
+- **Location Permissions**: Enabled for the Expo Go app or emulator (required for the Radius Filter feature)
 - **Supabase Account** (Sign up at [supabase.com](https://supabase.com))
 
 ---
@@ -43,9 +44,12 @@ To ensure the "Forgot Password" and "Signup" flows work correctly:
     *   Go to **Authentication** > **Email Templates**.
     *   Select **Reset Password**.
     *   Change the message body to include `{{ .Token }}` instead of a link. This allows users to enter a 6-digit code directly in the app.
+    *   **IMPORTANT**: Click the **"Save changes"** button at the bottom right.
 2.  **Rate Limits (For Testing)**:
     *   If you see "email rate limit exceeded", go to **Authentication** > **Settings** > **Rate Limits**.
     *   Increase the **Email Rate Limit** or disable **Confirm Email** under **User Signups** during development.
+3.  **OTP vs Links**:
+    *   The app is configured to use **6-digit OTPs**. If you still receive a link, ensure you have removed the `redirectTo` parameter from the code and updated the template in Step 1 above.
 
 ---
 
