@@ -5,6 +5,25 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import * as Location from 'expo-location';
 
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+const RADIUS_OPTIONS = [
+  { label: 'Any', value: null },
+  { label: '5km', value: 5 },
+  { label: '10km', value: 10 },
+  { label: '25km', value: 25 },
+  { label: '50km', value: 50 },
+];
+
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../lib/hooks/useAuth';
 import type { Livestock } from '../types/database';
@@ -37,6 +56,9 @@ export default function LivestockMap() {
   const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
   const [showList, setShowList] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Livestock | null>(null);
+  const [radius, setRadius] = useState<number | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [showRadiusDropdown, setShowRadiusDropdown] = useState(false);
 
   const openListing = useCallback((id: string) => {
     router.navigate(`/${rolePath}/marketplace`);
@@ -97,13 +119,33 @@ export default function LivestockMap() {
           latitude: loc.coords.latitude,
           longitude: loc.coords.longitude,
         });
+        setLocationError(null);
+      } else {
+        setLocationError('Permission to access location was denied');
       }
     } catch {
+      setLocationError('Could not fetch location');
       // Location not available — use default region
     }
   };
 
-  const allListings = [...mappedListings, ...unmappedListings];
+  const filteredMappedListings = mappedListings.filter(item => {
+    if (radius === null) return true;
+    if (!userLocation) return false; // If a radius is set but location is unknown, hide listings
+    if (!item.latitude || !item.longitude) return false;
+    
+    const dist = calculateDistance(
+      userLocation.latitude, 
+      userLocation.longitude, 
+      Number(item.latitude), 
+      Number(item.longitude)
+    );
+    return dist <= radius;
+  });
+
+  const filteredUnmappedListings = radius === null ? unmappedListings : [];
+
+  const allListings = [...filteredMappedListings, ...filteredUnmappedListings];
 
   if (loading) {
     return (
@@ -134,7 +176,7 @@ export default function LivestockMap() {
           flipY={false}
         />
 
-        {mappedListings.map((item) => (
+        {filteredMappedListings.map((item) => (
           <Marker
             key={item.id}
             coordinate={{
@@ -142,14 +184,13 @@ export default function LivestockMap() {
               longitude: Number(item.longitude),
             }}
             onPress={() => setSelectedItem(item)}
+            category={item.category}
+            title={item.name}
           >
-            {/* Marker label: emoji + post name */}
+            {/* Marker label: emoji only */}
             <View className="items-center">
-              <View className="bg-white dark:bg-gray-800 rounded-lg px-2 py-1 shadow-sm border border-gray-200 dark:border-gray-700 flex-row items-center">
-                <Text className="text-sm mr-1">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
-                <Text className="text-xs font-semibold text-gray-800 dark:text-gray-100" numberOfLines={1}>
-                  {item.name}
-                </Text>
+              <View className="bg-white dark:bg-gray-800 rounded-full p-1.5 shadow-md border border-gray-200 dark:border-gray-700 items-center justify-center">
+                <Text className="text-base">{CATEGORY_EMOJI[item.category] || '📍'}</Text>
               </View>
               <View className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-gray-200 dark:border-t-gray-700" />
             </View>
@@ -177,7 +218,7 @@ export default function LivestockMap() {
         ))}
       </MapView>
 
-      <MapLegend />
+
 
       {/* Selected Item Card (Bottom Sheet style for Android/iOS) */}
       {selectedItem && (
@@ -223,16 +264,70 @@ export default function LivestockMap() {
         </View>
       )}
 
-      {/* Toggle list button */}
-      <TouchableOpacity
-        className="absolute top-4 right-4 bg-white dark:bg-gray-800 rounded-lg px-3 py-2 shadow-md flex-row items-center border border-gray-100 dark:border-gray-700"
-        onPress={() => setShowList(!showList)}
-      >
-        <Text className="text-green-700 dark:text-green-400 font-medium mr-1">
-          {showList ? 'Hide' : 'All'} ({allListings.length})
-        </Text>
-        <Text className="text-sm">{showList ? '🗺️' : '📋'}</Text>
-      </TouchableOpacity>
+      {/* Top Inline Controls */}
+      <View className="absolute top-4 left-4 right-4 z-20 flex-row flex-wrap gap-2 items-start">
+        <MapLegend />
+
+        {/* Radius Filters Dropdown */}
+        <View className="z-10">
+          <TouchableOpacity
+            className="bg-white dark:bg-gray-800 rounded-lg px-3 py-2 shadow-md flex-row items-center border border-gray-100 dark:border-gray-700"
+            onPress={() => setShowRadiusDropdown(!showRadiusDropdown)}
+          >
+            <Ionicons name="compass" size={18} color="#2E7D32" />
+            <Text className="text-gray-700 dark:text-gray-200 font-medium ml-1 mr-2">
+              Radius: {RADIUS_OPTIONS.find(r => r.value === radius)?.label || 'Any'}
+            </Text>
+            <Ionicons name={showRadiusDropdown ? "chevron-up" : "chevron-down"} size={16} color="#6B7280" />
+          </TouchableOpacity>
+
+          {showRadiusDropdown && (
+            <View className="absolute top-full mt-2 left-0 bg-white dark:bg-gray-800 rounded-lg py-1 shadow-xl border border-gray-100 dark:border-gray-700 min-w-[140px]">
+              {RADIUS_OPTIONS.map((item) => (
+                <TouchableOpacity
+                  key={item.label}
+                  className={`px-4 py-2.5 flex-row justify-between items-center ${
+                    radius === item.value ? 'bg-green-50 dark:bg-gray-700' : ''
+                  }`}
+                  onPress={() => {
+                    if (item.value !== null && !userLocation) {
+                      getUserLocation();
+                    }
+                    setRadius(item.value);
+                    setShowRadiusDropdown(false);
+                  }}
+                >
+                  <Text className={`text-sm ${
+                    radius === item.value ? 'text-green-700 dark:text-green-400 font-bold' : 'text-gray-700 dark:text-gray-300'
+                  }`}>
+                    {item.label}
+                  </Text>
+                  {radius === item.value && (
+                    <Ionicons name="checkmark" size={16} color="#2E7D32" />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          {locationError && radius !== null && (
+            <View className="absolute top-full mt-2 left-0 bg-red-100 dark:bg-red-900 px-2 py-1 rounded-md min-w-[140px]">
+              <Text className="text-[10px] text-red-800 dark:text-red-200">{locationError}</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Toggle list button */}
+        <TouchableOpacity
+          className="bg-white dark:bg-gray-800 rounded-lg px-3 py-2 shadow-md flex-row items-center border border-gray-100 dark:border-gray-700"
+          onPress={() => setShowList(!showList)}
+        >
+          <Text className="text-green-700 dark:text-green-400 font-medium mr-1">
+            {showList ? 'Hide' : 'All'} ({allListings.length})
+          </Text>
+          <Text className="text-sm">{showList ? '🗺️' : '📋'}</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Listings panel */}
       {showList && (

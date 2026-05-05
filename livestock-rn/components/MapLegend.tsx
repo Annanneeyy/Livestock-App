@@ -12,7 +12,7 @@ export default function MapLegend() {
   const [visible, setVisible] = useState(false);
 
   return (
-    <View className="absolute top-4 left-4">
+    <View className="z-20">
       <TouchableOpacity
         className="bg-white rounded-lg px-3 py-2 shadow-md flex-row items-center"
         onPress={() => setVisible(!visible)}
@@ -22,7 +22,7 @@ export default function MapLegend() {
       </TouchableOpacity>
 
       {visible && (
-        <View className="bg-white rounded-lg p-3 shadow-md mt-2 min-w-[140px]">
+        <View className="absolute top-full mt-2 left-0 bg-white rounded-lg p-3 shadow-md min-w-[140px]">
           {CATEGORIES.map((cat) => (
             <View key={cat.name} className="flex-row items-center mb-1.5 last:mb-0">
               <Text className="text-base mr-2">{cat.emoji}</Text>
