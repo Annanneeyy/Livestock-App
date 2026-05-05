@@ -1,6 +1,7 @@
 import { Tabs, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { DeviceEventEmitter, Platform } from 'react-native';
+import { StackActions } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useUnreadCount } from '../../lib/hooks/useChat';
 import { useTheme } from '../../lib/hooks/useTheme';
@@ -83,13 +84,23 @@ export default function FarmerLayout() {
             <Ionicons name="storefront" size={size} color={color} />
           ),
         }}
-        listeners={{
+        listeners={({ navigation: tabNav }) => ({
           tabPress: (e) => {
-            if (navigation.isFocused()) {
+            const state = tabNav.getState();
+            const route: any = state.routes.find((r: any) => r.name === 'marketplace');
+            const childKey = route?.state?.key;
+            const childRoutes = route?.state?.routes ?? [];
+            const isFocused = navigation.isFocused();
+
+            if (childKey && childRoutes.length > 1) {
+              e.preventDefault();
+              tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
+              if (!isFocused) tabNav.navigate('marketplace');
+            } else if (isFocused) {
               DeviceEventEmitter.emit('refresh_marketplace');
             }
           },
-        }}
+        })}
       />
       <Tabs.Screen
         name="guidelines"
@@ -108,13 +119,26 @@ export default function FarmerLayout() {
             <Ionicons name="chatbubbles" size={size} color={color} />
           ),
         }}
-        listeners={{
+        listeners={({ navigation: tabNav }) => ({
           tabPress: (e) => {
-            if (navigation.isFocused()) {
-              DeviceEventEmitter.emit('refresh_chats');
+            const state = tabNav.getState();
+            const route = state.routes.find((r: any) => r.name === 'chats');
+            const childKey = route?.state?.key;
+            const childRoutes = route?.state?.routes ?? [];
+            const isFocused = navigation.isFocused();
+
+            if (isFocused) {
+              if (childKey && childRoutes.length > 1) {
+                e.preventDefault();
+                tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
+              } else {
+                DeviceEventEmitter.emit('refresh_chats');
+              }
+            } else if (childKey && childRoutes.length > 1) {
+              tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
             }
           },
-        }}
+        })}
       />
       <Tabs.Screen
         name="profile"

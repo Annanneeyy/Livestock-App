@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
+import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLivestockDetail, deleteLivestock, markAsSold } from '../../../lib/hooks/useLivestock';
 import { useAuth } from '../../../lib/hooks/useAuth';
@@ -8,11 +8,24 @@ import CommentSection from '../../../components/CommentSection';
 import { getOrCreateChat } from '../../../lib/hooks/useChat';
 
 export default function PostDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, from } = useLocalSearchParams<{ id: string; from?: string }>();
   const router = useRouter();
+  const navigation = useNavigation();
   const { user, profile } = useAuth();
   const { data, comments, loading, refetch } = useLivestockDetail(id!);
   const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      router.replace(`/${rolePath}/marketplace`);
+    }
+    if (from === 'map') {
+      const mapPath = rolePath === '(admin)' ? 'map' : 'home';
+      requestAnimationFrame(() => router.replace(`/${rolePath}/${mapPath}`));
+    }
+  };
 
   if (loading) {
     return (
@@ -61,13 +74,9 @@ export default function PostDetailScreen() {
       <Stack.Screen
         options={{
           title: data.name || 'Post Details',
-          headerBackVisible: true,
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => {
-                if (router.canGoBack()) router.back();
-                else router.replace(`/${rolePath}/marketplace`);
-              }}
+              onPress={handleBack}
               hitSlop={10}
               style={{ paddingHorizontal: 8 }}
             >

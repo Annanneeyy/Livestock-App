@@ -39,7 +39,13 @@ export default function LivestockMap() {
   const [selectedItem, setSelectedItem] = useState<Livestock | null>(null);
 
   const openListing = useCallback((id: string) => {
-    router.push(`/${rolePath}/marketplace/${id}`);
+    router.navigate(`/${rolePath}/marketplace`);
+    requestAnimationFrame(() => {
+      router.push({
+        pathname: `/${rolePath}/marketplace/[id]`,
+        params: { id, from: 'map' },
+      });
+    });
   }, [router, rolePath]);
 
   const fetchListings = useCallback(async () => {

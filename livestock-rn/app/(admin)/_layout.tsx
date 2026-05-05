@@ -1,6 +1,7 @@
 import { Tabs, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { DeviceEventEmitter, Platform } from 'react-native';
+import { StackActions } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import NotificationBell from '../../components/NotificationBell';
 
@@ -100,13 +101,26 @@ export default function AdminLayout() {
             <Ionicons name="storefront" size={size} color={color} />
           ),
         }}
-        listeners={{
+        listeners={({ navigation: tabNav }) => ({
           tabPress: (e) => {
-            if (navigation.isFocused()) {
-              DeviceEventEmitter.emit('refresh_marketplace');
+            const state = tabNav.getState();
+            const route = state.routes.find((r: any) => r.name === 'marketplace');
+            const childKey = route?.state?.key;
+            const childRoutes = route?.state?.routes ?? [];
+            const isFocused = navigation.isFocused();
+
+            if (isFocused) {
+              if (childKey && childRoutes.length > 1) {
+                e.preventDefault();
+                tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
+              } else {
+                DeviceEventEmitter.emit('refresh_marketplace');
+              }
+            } else if (childKey && childRoutes.length > 1) {
+              tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
             }
           },
-        }}
+        })}
       />
       <Tabs.Screen
         name="manage"
@@ -125,6 +139,22 @@ export default function AdminLayout() {
             <Ionicons name="chatbubbles" size={size} color={color} />
           ),
         }}
+        listeners={({ navigation: tabNav }) => ({
+          tabPress: (e) => {
+            const state = tabNav.getState();
+            const route = state.routes.find((r: any) => r.name === 'chats');
+            const childKey = route?.state?.key;
+            const childRoutes = route?.state?.routes ?? [];
+            const isFocused = navigation.isFocused();
+
+            if (isFocused && childKey && childRoutes.length > 1) {
+              e.preventDefault();
+              tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
+            } else if (!isFocused && childKey && childRoutes.length > 1) {
+              tabNav.dispatch({ ...StackActions.popToTop(), target: childKey });
+            }
+          },
+        })}
       />
       <Tabs.Screen
         name="settings"
