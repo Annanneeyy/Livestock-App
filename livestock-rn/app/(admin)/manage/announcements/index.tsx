@@ -19,10 +19,16 @@ export default function AnnouncementsListScreen() {
   };
 
   const performDelete = async (id: string) => {
-    const { error } = await supabase.from('announcements').delete().eq('id', id);
+    const { data, error } = await supabase.from('announcements').delete().eq('id', id).select();
     if (error) {
       if (Platform.OS === 'web') window.alert(`Delete failed: ${error.message}`);
       else Alert.alert('Error', error.message);
+      return;
+    }
+    if (!data || data.length === 0) {
+      const msg = 'Delete blocked by row-level security. Make sure your account has admin role.';
+      if (Platform.OS === 'web') window.alert(msg);
+      else Alert.alert('Permission denied', msg);
       return;
     }
     fetchItems();
