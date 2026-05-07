@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator,
+  Platform, ScrollView, ActivityIndicator, Pressable,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../lib/hooks/useAuth';
 import { BARANGAYS } from '../../constants/theme';
 
@@ -20,22 +21,32 @@ export default function SignUpScreen() {
   const [purok, setPurok] = useState('');
   const [barangay, setBarangay] = useState('');
   const [gender, setGender] = useState('');
+  const [showBarangayDropdown, setShowBarangayDropdown] = useState(false);
 
   const handleSignUp = async () => {
+    if (Platform.OS === 'web') console.log('Sign Up Button Tapped');
+    
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all required fields.');
+      console.log('Validation failed: Missing required fields');
+      if (Platform.OS === 'web') alert('Please fill in all required fields.');
+      else Alert.alert('Error', 'Please fill in all required fields.');
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
+      console.log('Validation failed: Passwords do not match');
+      if (Platform.OS === 'web') alert('Passwords do not match.');
+      else Alert.alert('Error', 'Passwords do not match.');
       return;
     }
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters.');
+    if (password.length < 8) {
+      console.log('Validation failed: Password too short');
+      if (Platform.OS === 'web') alert('Password must be at least 8 characters.');
+      else Alert.alert('Error', 'Password must be at least 8 characters.');
       return;
     }
 
     setLoading(true);
+    console.log('Validation passed. Starting sign up for:', email);
     try {
       await signUp(email.trim(), password, {
         first_name: firstName.trim(),
@@ -44,32 +55,41 @@ export default function SignUpScreen() {
         purok: purok || undefined,
         barangay: barangay || undefined,
       });
-      // Auth state change will redirect to verify-email via the auth gate
-    } catch (error: any) {
-      if (error.message?.includes('email rate limit exceeded')) {
-        Alert.alert(
-          'Sign Up Limit Reached',
-          'Too many signup attempts. Please try again later or contact support to increase limits in the Supabase dashboard.'
-        );
+      
+      console.log('Sign up successful');
+      const successMsg = 'Registration successful! Please check your email for a verification link before logging in.';
+      if (Platform.OS === 'web') {
+        alert(successMsg);
+        router.replace('/(auth)/login');
       } else {
-        Alert.alert('Sign Up Failed', error.message || 'An error occurred.');
+        Alert.alert('Success', successMsg, [
+          { text: 'OK', onPress: () => router.replace('/(auth)/login') }
+        ]);
+      }
+    } catch (error: any) {
+      console.error('Sign up error:', error);
+      const isRateLimit = error.message?.includes('email rate limit exceeded');
+      const errorMsg = isRateLimit 
+        ? 'Too many signup attempts. Please try again later or increase limits in your Supabase Dashboard (Auth > Rate Limits).'
+        : (error.message || 'An error occurred.');
+
+      if (Platform.OS === 'web') {
+        alert(errorMsg);
+      } else {
+        Alert.alert(isRateLimit ? 'Sign Up Limit Reached' : 'Sign Up Failed', errorMsg);
       }
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-white"
+  const content = (
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      keyboardShouldPersistTaps="handled"
     >
-      <ScrollView
-        contentContainerStyle={{ flexGrow: 1 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View className="px-8 py-12">
-          <Text className="text-2xl font-bold text-green-800 mb-6">Create Account</Text>
+      <View className="px-8 py-12">
+        <Text className="text-2xl font-bold text-green-800 mb-6">Create Account</Text>
 
           <View className="flex-row gap-4 mb-4">
             <View className="flex-1">
@@ -133,32 +153,52 @@ export default function SignUpScreen() {
             />
           </View>
 
-          <View className="mb-4">
+          <View className="mb-4 z-10">
             <Text className="text-sm font-medium text-gray-700 mb-1">Barangay</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="py-1">
-              <View className="flex-row gap-2">
-                {BARANGAYS.map((b) => (
-                  <TouchableOpacity
-                    key={b}
-                    className={`px-4 py-2 rounded-full border ${
-                      barangay === b ? 'bg-green-700 border-green-700' : 'border-gray-300'
-                    }`}
-                    onPress={() => setBarangay(b)}
-                  >
-                    <Text className={barangay === b ? 'text-white text-sm' : 'text-gray-700 text-sm'}>
-                      {b}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+            <TouchableOpacity
+              onPress={() => setShowBarangayDropdown(!showBarangayDropdown)}
+              className="border border-gray-300 rounded-lg px-4 py-3 bg-white flex-row justify-between items-center"
+            >
+              <Text className={barangay ? 'text-gray-900' : 'text-gray-400'}>
+                {barangay || 'Select Barangay'}
+              </Text>
+              <Ionicons name={showBarangayDropdown ? "chevron-up" : "chevron-down"} size={20} color="#6B7280" />
+            </TouchableOpacity>
+
+            {showBarangayDropdown && (
+              <View className="absolute top-[70px] left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-hidden">
+                <ScrollView nestedScrollEnabled={true}>
+                  {BARANGAYS.map((b) => (
+                    <TouchableOpacity
+                      key={b}
+                      className={`px-4 py-3 border-b border-gray-50 ${
+                        barangay === b ? 'bg-green-50' : ''
+                      }`}
+                      onPress={() => {
+                        setBarangay(b);
+                        setShowBarangayDropdown(false);
+                      }}
+                    >
+                      <View className="flex-row justify-between items-center">
+                        <Text className={`text-base ${barangay === b ? 'text-green-800 font-bold' : 'text-gray-700'}`}>
+                          {b}
+                        </Text>
+                        {barangay === b && (
+                          <Ionicons name="checkmark" size={20} color="#2E7D32" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
               </View>
-            </ScrollView>
+            )}
           </View>
 
           <View className="mb-4">
             <Text className="text-sm font-medium text-gray-700 mb-1">Password *</Text>
             <TextInput
               className="border border-gray-300 rounded-lg px-4 py-3"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
@@ -176,7 +216,7 @@ export default function SignUpScreen() {
             />
           </View>
 
-          <TouchableOpacity
+          <Pressable
             className={`rounded-lg py-4 items-center ${loading ? 'bg-green-400' : 'bg-green-700'}`}
             onPress={handleSignUp}
             disabled={loading}
@@ -186,13 +226,25 @@ export default function SignUpScreen() {
             ) : (
               <Text className="text-white text-lg font-semibold">Sign Up</Text>
             )}
-          </TouchableOpacity>
+          </Pressable>
 
           <TouchableOpacity className="mt-4 items-center" onPress={() => router.back()}>
             <Text className="text-green-700 font-semibold">Back to Login</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </KeyboardAvoidingView>
-  );
+    );
+
+    if (Platform.OS === 'web') {
+      return <View className="flex-1 bg-white">{content}</View>;
+    }
+
+    return (
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className="flex-1 bg-white"
+      >
+        {content}
+      </KeyboardAvoidingView>
+    );
 }

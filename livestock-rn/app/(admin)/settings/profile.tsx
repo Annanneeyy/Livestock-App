@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { decode } from 'base64-arraybuffer';
 import * as FileSystem from 'expo-file-system/legacy';
 import { useRouter } from 'expo-router';
+import { BARANGAYS } from '../../../constants/theme';
 
 export default function ProfileDetailsScreen() {
   const { profile, user, refreshProfile } = useAuth();
@@ -18,6 +19,7 @@ export default function ProfileDetailsScreen() {
     barangay: ''
   });
   const [image, setImage] = useState<string | null>(null);
+  const [showBarangayDropdown, setShowBarangayDropdown] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -152,11 +154,57 @@ export default function ProfileDetailsScreen() {
             value={user?.email || ''} 
             editable={false} 
           />
-          <InputGroup 
-            label="Barangay" 
-            value={formData.barangay} 
-            onChangeText={(text: string) => setFormData({...formData, barangay: text})}
-          />
+          <View className="mb-4 z-10">
+            <Text className="text-sm font-semibold text-gray-500 mb-1 ml-1">Barangay</Text>
+            <TouchableOpacity
+              onPress={() => setShowBarangayDropdown(!showBarangayDropdown)}
+              style={{
+                backgroundColor: '#F9FAFB',
+                padding: 16,
+                borderRadius: 12,
+                borderWidth: 1,
+                borderColor: '#F3F4F6',
+                flexDirection: 'row',
+                justifyContent: 'between',
+                alignItems: 'center',
+                minHeight: 50,
+              }}
+              className="flex-row justify-between items-center"
+            >
+              <Text className={formData.barangay ? 'text-gray-900' : 'text-gray-400'} style={{ fontSize: 16 }}>
+                {formData.barangay || 'Select Barangay'}
+              </Text>
+              <Ionicons name={showBarangayDropdown ? "chevron-up" : "chevron-down"} size={20} color="#6B7280" />
+            </TouchableOpacity>
+
+            {showBarangayDropdown && (
+              <View className="absolute top-[75px] left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-60 overflow-hidden">
+                <ScrollView nestedScrollEnabled={true}>
+                  {BARANGAYS.map((b) => (
+                    <TouchableOpacity
+                      key={b}
+                      className={`px-4 py-3 border-b border-gray-50 ${
+                        formData.barangay === b ? 'bg-green-50' : ''
+                      }`}
+                      onPress={() => {
+                        setFormData({...formData, barangay: b});
+                        setShowBarangayDropdown(false);
+                      }}
+                    >
+                      <View className="flex-row justify-between items-center">
+                        <Text className={`text-base ${formData.barangay === b ? 'text-green-800 font-bold' : 'text-gray-700'}`}>
+                          {b}
+                        </Text>
+                        {formData.barangay === b && (
+                          <Ionicons name="checkmark" size={20} color="#2E7D32" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+          </View>
         </View>
 
         <TouchableOpacity 

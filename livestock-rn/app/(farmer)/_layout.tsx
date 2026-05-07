@@ -1,11 +1,13 @@
 import { Tabs, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { DeviceEventEmitter, Platform } from 'react-native';
+import { DeviceEventEmitter, Platform, View, useWindowDimensions } from 'react-native';
 import { StackActions } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import { useUnreadCount } from '../../lib/hooks/useChat';
 import { useTheme } from '../../lib/hooks/useTheme';
 import NotificationBell from '../../components/NotificationBell';
+import WebSidebar from '../../components/WebSidebar';
 
 export default function FarmerLayout() {
   const navigation = useNavigation();
@@ -13,8 +15,19 @@ export default function FarmerLayout() {
   const { theme } = useTheme();
   const { t } = useTranslation();
   const isDark = theme === 'dark';
+  const [isMinimized, setIsMinimized] = useState(false);
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width > 768;
 
-  return (
+  const farmerNavItems = [
+    { name: 'home', label: 'Map', icon: 'map' as const, path: '/(farmer)/home' },
+    { name: 'marketplace', label: 'Market', icon: 'storefront' as const, path: '/(farmer)/marketplace' },
+    { name: 'guidelines', label: 'Guides', icon: 'book' as const, path: '/(farmer)/guidelines' },
+    { name: 'chats', label: 'Chats', icon: 'chatbubbles' as const, path: '/(farmer)/chats' },
+    { name: 'profile', label: 'Profile', icon: 'person' as const, path: '/(farmer)/profile' },
+  ];
+
+  const layoutContent = (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: isDark ? '#4ade80' : '#2E7D32',
@@ -27,7 +40,8 @@ export default function FarmerLayout() {
           paddingTop: 5,
           ...Platform.select({
             web: {
-              maxWidth: 700, // Increased for better spacing
+              display: isLargeScreen ? 'none' : 'flex',
+              maxWidth: 700,
               width: '90%',
               alignSelf: 'center',
               borderRadius: 40,
@@ -160,4 +174,21 @@ export default function FarmerLayout() {
       />
     </Tabs>
   );
+
+  if (Platform.OS === 'web' && isLargeScreen) {
+    return (
+      <View className={`flex-1 flex-row ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+        <WebSidebar 
+          items={farmerNavItems} 
+          isMinimized={isMinimized} 
+          onToggle={() => setIsMinimized(!isMinimized)} 
+        />
+        <View className="flex-1">
+          {layoutContent}
+        </View>
+      </View>
+    );
+  }
+
+  return layoutContent;
 }

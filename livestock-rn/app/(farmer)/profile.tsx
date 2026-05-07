@@ -12,6 +12,7 @@ import { useAuth } from '../../lib/hooks/useAuth';
 import { useTheme } from '../../lib/hooks/useTheme';
 import { supabase } from '../../lib/supabase';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BARANGAYS } from '../../constants/theme';
 
 export default function ProfileScreen() {
   const { profile, user, signOut, refreshProfile } = useAuth();
@@ -23,6 +24,7 @@ export default function ProfileScreen() {
   const [purok, setPurok] = useState(profile?.purok || '');
   const [barangay, setBarangay] = useState(profile?.barangay || '');
   const [saving, setSaving] = useState(false);
+  const [showBarangayDropdown, setShowBarangayDropdown] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -173,13 +175,45 @@ export default function ProfileScreen() {
                 onChangeText={setPurok}
               />
             </View>
-            <View className="mb-3">
+            <View className="mb-3 z-10">
               <Text className="text-sm font-medium text-gray-700 mb-1">Barangay</Text>
-              <TextInput
-                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 dark:text-white"
-                value={barangay}
-                onChangeText={setBarangay}
-              />
+              <TouchableOpacity
+                onPress={() => setShowBarangayDropdown(!showBarangayDropdown)}
+                className="border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-800 flex-row justify-between items-center"
+              >
+                <Text className={barangay ? 'text-gray-900 dark:text-white' : 'text-gray-400'}>
+                  {barangay || 'Select Barangay'}
+                </Text>
+                <Ionicons name={showBarangayDropdown ? "chevron-up" : "chevron-down"} size={20} color="#6B7280" />
+              </TouchableOpacity>
+
+              {showBarangayDropdown && (
+                <View className="absolute top-[75px] left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 max-h-60 overflow-hidden">
+                  <ScrollView nestedScrollEnabled={true}>
+                    {BARANGAYS.map((b) => (
+                      <TouchableOpacity
+                        key={b}
+                        className={`px-4 py-3 border-b border-gray-50 dark:border-gray-700 ${
+                          barangay === b ? 'bg-green-50 dark:bg-green-900/20' : ''
+                        }`}
+                        onPress={() => {
+                          setBarangay(b);
+                          setShowBarangayDropdown(false);
+                        }}
+                      >
+                        <View className="flex-row justify-between items-center">
+                          <Text className={`text-base ${barangay === b ? 'text-green-800 dark:text-green-400 font-bold' : 'text-gray-700 dark:text-gray-300'}`}>
+                            {b}
+                          </Text>
+                          {barangay === b && (
+                            <Ionicons name="checkmark" size={20} color="#2E7D32" />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
             </View>
             <View className="flex-row gap-3">
               <TouchableOpacity

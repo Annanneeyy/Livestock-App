@@ -22,8 +22,8 @@ export default function ResetPasswordScreen() {
       Alert.alert('Error', 'Passwords do not match.');
       return;
     }
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters.');
+    if (password.length < 8) {
+      Alert.alert('Error', 'Password must be at least 8 characters.');
       return;
     }
 
@@ -67,7 +67,7 @@ export default function ResetPasswordScreen() {
             <Text className="text-sm font-medium text-gray-700 mb-1">New Password</Text>
             <TextInput
               className="border border-gray-300 rounded-lg px-4 py-3 text-base"
-              placeholder="At least 6 characters"
+              placeholder="At least 8 characters"
               value={password}
               onChangeText={setPassword}
               secureTextEntry

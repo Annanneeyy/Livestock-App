@@ -1,15 +1,29 @@
 import { Tabs, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { DeviceEventEmitter, Platform } from 'react-native';
+import { DeviceEventEmitter, Platform, View, useWindowDimensions } from 'react-native';
 import { StackActions } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import React, { useState } from 'react';
 import NotificationBell from '../../components/NotificationBell';
+import WebSidebar from '../../components/WebSidebar';
 
 export default function AdminLayout() {
   const navigation = useNavigation();
   const { t } = useTranslation();
+  const [isMinimized, setIsMinimized] = useState(false);
+  const { width } = useWindowDimensions();
+  const isLargeScreen = width > 768;
 
-  return (
+  const adminNavItems = [
+    { name: 'dashboard', label: 'Stats', icon: 'stats-chart' as const, path: '/(admin)/dashboard' },
+    { name: 'map', label: 'Map', icon: 'map' as const, path: '/(admin)/map' },
+    { name: 'marketplace', label: 'Market', icon: 'storefront' as const, path: '/(admin)/marketplace' },
+    { name: 'manage', label: 'Manage', icon: 'create' as const, path: '/(admin)/manage' },
+    { name: 'chats', label: 'Chats', icon: 'chatbubbles' as const, path: '/(admin)/chats' },
+    { name: 'settings', label: 'Settings', icon: 'settings' as const, path: '/(admin)/settings' },
+  ];
+
+  const layoutContent = (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: '#2E7D32',
@@ -31,7 +45,8 @@ export default function AdminLayout() {
           paddingTop: 5,
           ...Platform.select({
             web: {
-              maxWidth: 800, // Increased for better spacing with 6 tabs
+              display: isLargeScreen ? 'none' : 'flex',
+              maxWidth: 800,
               width: '90%',
               alignSelf: 'center',
               borderRadius: 40,
@@ -178,4 +193,21 @@ export default function AdminLayout() {
       />
     </Tabs>
   );
+
+  if (Platform.OS === 'web' && isLargeScreen) {
+    return (
+      <View className="flex-1 flex-row bg-white">
+        <WebSidebar 
+          items={adminNavItems} 
+          isMinimized={isMinimized} 
+          onToggle={() => setIsMinimized(!isMinimized)} 
+        />
+        <View className="flex-1">
+          {layoutContent}
+        </View>
+      </View>
+    );
+  }
+
+  return layoutContent;
 }
