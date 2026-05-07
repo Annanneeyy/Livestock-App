@@ -26,25 +26,33 @@ export default function NotificationsScreen() {
   };
 
   const handlePress = (notification: Notification) => {
-    markAsRead(notification.id);
-    
+    if (!notification.is_read) markAsRead(notification.id);
+
     if (!notification.related_id) return;
+    const id = notification.related_id;
+    const isAdmin = profile?.role === 'admin';
 
     switch (notification.related_type) {
       case 'livestock':
-        router.push(`/${rolePath}/marketplace/${notification.related_id}`);
+        router.push(`/${rolePath}/marketplace/${id}`);
         break;
       case 'announcement':
-        router.push(profile?.role === 'admin' ? '/(admin)/manage/announcements' : '/(farmer)/guidelines');
+        router.push(isAdmin
+          ? { pathname: '/(admin)/manage/announcements/form', params: { editId: id } }
+          : `/(farmer)/guidelines/announcements/${id}`);
         break;
       case 'guideline':
-        router.push(profile?.role === 'admin' ? '/(admin)/manage/health' : '/(farmer)/guidelines');
+        router.push(isAdmin
+          ? { pathname: '/(admin)/manage/health/form', params: { editId: id } }
+          : `/(farmer)/guidelines/health/${id}`);
         break;
       case 'feeding':
-        router.push(profile?.role === 'admin' ? '/(admin)/manage/feeding' : '/(farmer)/guidelines');
+        router.push(isAdmin
+          ? { pathname: '/(admin)/manage/feeding/form', params: { editId: id } }
+          : `/(farmer)/guidelines/feeding/${id}`);
         break;
       case 'chat':
-        router.push(`/${rolePath}/chats/${notification.related_id}`);
+        router.push(`/${rolePath}/chats/${id}`);
         break;
     }
   };
