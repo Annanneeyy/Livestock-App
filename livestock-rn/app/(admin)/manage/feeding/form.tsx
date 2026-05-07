@@ -38,8 +38,13 @@ export default function FeedingInfoFormScreen() {
     }
   }, [params.editId]);
 
+  const notify = (title: string, message: string) => {
+    if (Platform.OS === 'web') window.alert(`${title}: ${message}`);
+    else Alert.alert(title, message);
+  };
+
   const handleSubmit = async () => {
-    if (!name.trim() || !category) { Alert.alert('Error', 'Name and category are required.'); return; }
+    if (!name.trim() || !category) { notify('Error', 'Name and category are required.'); return; }
     if (!user) return;
     setLoading(true);
     try {
@@ -53,13 +58,15 @@ export default function FeedingInfoFormScreen() {
       if (isEditing) {
         const { error } = await supabase.from('feeding_info').update({ ...record, updated_at: new Date().toISOString() }).eq('id', params.editId!);
         if (error) throw error;
-        Alert.alert('Success', 'Feeding info updated!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Feeding info updated!');
+        router.back();
       } else {
         const { error } = await supabase.from('feeding_info').insert({ ...record, posted_by: user.id });
         if (error) throw error;
-        Alert.alert('Success', 'Feeding info created!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Feeding info created!');
+        router.back();
       }
-    } catch (error: any) { Alert.alert('Error', error.message); }
+    } catch (error: any) { notify('Error', error.message); }
     finally { setLoading(false); }
   };
 

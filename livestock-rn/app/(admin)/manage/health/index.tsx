@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useState, useCallback } from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../../../lib/supabase';
 import type { HealthGuideline } from '../../../../types/database';
@@ -10,7 +10,7 @@ export default function HealthGuidelinesAdminListScreen() {
   const [items, setItems] = useState<HealthGuideline[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => { fetchItems(); }, []);
+  useFocusEffect(useCallback(() => { fetchItems(); }, []));
 
   const fetchItems = async () => {
     const { data } = await supabase.from('health_guidelines').select('*').order('created_at', { ascending: false });
@@ -18,13 +18,24 @@ export default function HealthGuidelinesAdminListScreen() {
     setLoading(false);
   };
 
+  const performDelete = async (id: string) => {
+    const { error } = await supabase.from('health_guidelines').delete().eq('id', id);
+    if (error) {
+      if (Platform.OS === 'web') window.alert(`Delete failed: ${error.message}`);
+      else Alert.alert('Error', error.message);
+      return;
+    }
+    fetchItems();
+  };
+
   const handleDelete = (id: string) => {
+    if (Platform.OS === 'web') {
+      if (window.confirm('Are you sure you want to delete this guideline?')) performDelete(id);
+      return;
+    }
     Alert.alert('Delete', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => {
-        await supabase.from('health_guidelines').delete().eq('id', id);
-        fetchItems();
-      }},
+      { text: 'Delete', style: 'destructive', onPress: () => performDelete(id) },
     ]);
   };
 

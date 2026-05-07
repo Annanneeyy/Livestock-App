@@ -26,21 +26,28 @@ export default function AnnouncementFormScreen() {
     }
   }, [params.editId]);
 
+  const notify = (title: string, message: string) => {
+    if (Platform.OS === 'web') window.alert(`${title}: ${message}`);
+    else Alert.alert(title, message);
+  };
+
   const handleSubmit = async () => {
-    if (!title.trim()) { Alert.alert('Error', 'Title is required.'); return; }
+    if (!title.trim()) { notify('Error', 'Title is required.'); return; }
     if (!user) return;
     setLoading(true);
     try {
       if (isEditing) {
         const { error } = await supabase.from('announcements').update({ title: title.trim(), description: description.trim() || null, content: content.trim() || null, updated_at: new Date().toISOString() }).eq('id', params.editId!);
         if (error) throw error;
-        Alert.alert('Success', 'Announcement updated!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Announcement updated!');
+        router.back();
       } else {
         const { error } = await supabase.from('announcements').insert({ title: title.trim(), description: description.trim() || null, content: content.trim() || null, posted_by: user.id });
         if (error) throw error;
-        Alert.alert('Success', 'Announcement posted!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Announcement posted!');
+        router.back();
       }
-    } catch (error: any) { Alert.alert('Error', error.message); }
+    } catch (error: any) { notify('Error', error.message); }
     finally { setLoading(false); }
   };
 

@@ -27,21 +27,28 @@ export default function HealthGuidelineFormScreen() {
     }
   }, [params.editId]);
 
+  const notify = (title: string, message: string) => {
+    if (Platform.OS === 'web') window.alert(`${title}: ${message}`);
+    else Alert.alert(title, message);
+  };
+
   const handleSubmit = async () => {
-    if (!disease.trim()) { Alert.alert('Error', 'Disease name is required.'); return; }
+    if (!disease.trim()) { notify('Error', 'Disease name is required.'); return; }
     if (!user) return;
     setLoading(true);
     try {
       if (isEditing) {
         const { error } = await supabase.from('health_guidelines').update({ disease: disease.trim(), symptoms: symptoms.trim() || null, treatment: treatment.trim() || null, prevention: prevention.trim() || null, updated_at: new Date().toISOString() }).eq('id', params.editId!);
         if (error) throw error;
-        Alert.alert('Success', 'Guideline updated!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Guideline updated!');
+        router.back();
       } else {
         const { error } = await supabase.from('health_guidelines').insert({ disease: disease.trim(), symptoms: symptoms.trim() || null, treatment: treatment.trim() || null, prevention: prevention.trim() || null, posted_by: user.id });
         if (error) throw error;
-        Alert.alert('Success', 'Guideline created!', [{ text: 'OK', onPress: () => router.back() }]);
+        notify('Success', 'Guideline created!');
+        router.back();
       }
-    } catch (error: any) { Alert.alert('Error', error.message); }
+    } catch (error: any) { notify('Error', error.message); }
     finally { setLoading(false); }
   };
 
