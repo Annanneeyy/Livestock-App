@@ -30,26 +30,19 @@ export default function NotificationsScreen() {
 
     if (!notification.related_id) return;
     const id = notification.related_id;
-    const isAdmin = profile?.role === 'admin';
 
     switch (notification.related_type) {
       case 'livestock':
         router.push(`/${rolePath}/marketplace/${id}`);
         break;
       case 'announcement':
-        router.push(isAdmin
-          ? { pathname: '/(admin)/manage/announcements/form', params: { editId: id } }
-          : `/(farmer)/guidelines/announcements/${id}`);
+        router.push(`/(farmer)/guidelines/announcements/${id}`);
         break;
       case 'guideline':
-        router.push(isAdmin
-          ? { pathname: '/(admin)/manage/health/form', params: { editId: id } }
-          : `/(farmer)/guidelines/health/${id}`);
+        router.push(`/(farmer)/guidelines/health/${id}`);
         break;
       case 'feeding':
-        router.push(isAdmin
-          ? { pathname: '/(admin)/manage/feeding/form', params: { editId: id } }
-          : `/(farmer)/guidelines/feeding/${id}`);
+        router.push(`/(farmer)/guidelines/feeding/${id}`);
         break;
       case 'chat':
         router.push(`/${rolePath}/chats/${id}`);
