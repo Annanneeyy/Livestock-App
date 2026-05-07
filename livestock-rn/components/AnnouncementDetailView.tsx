@@ -8,14 +8,17 @@ import type { Announcement } from '../types/database';
 export default function AnnouncementDetailView({ id }: { id: string }) {
   const [data, setData] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
-      const { data: result } = await supabase
+      const { data: result, error } = await supabase
         .from('announcements')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
+      console.log('[announcement detail]', { id, result, error });
+      if (error) setErrorMsg(error.message);
       setData(result);
       setLoading(false);
     };
@@ -32,8 +35,10 @@ export default function AnnouncementDetailView({ id }: { id: string }) {
 
   if (!data) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-gray-400">Announcement not found</Text>
+      <View className="flex-1 items-center justify-center px-6">
+        <Text className="text-gray-500 text-center">Announcement not found</Text>
+        <Text className="text-xs text-gray-400 mt-2 text-center">id: {id}</Text>
+        {errorMsg ? <Text className="text-xs text-red-500 mt-2 text-center">{errorMsg}</Text> : null}
       </View>
     );
   }
