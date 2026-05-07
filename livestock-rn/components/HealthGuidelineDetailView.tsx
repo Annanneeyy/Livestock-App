@@ -8,14 +8,16 @@ import type { HealthGuideline } from '../types/database';
 export default function HealthGuidelineDetailView({ id }: { id: string }) {
   const [data, setData] = useState<HealthGuideline | null>(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const fetch = async () => {
-      const { data: result } = await supabase
+      const { data: result, error } = await supabase
         .from('health_guidelines')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
+      if (error) setErrorMsg(error.message);
       setData(result);
       setLoading(false);
     };
@@ -32,8 +34,13 @@ export default function HealthGuidelineDetailView({ id }: { id: string }) {
 
   if (!data) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-gray-400">Guideline not found</Text>
+      <View className="flex-1 items-center justify-center px-6">
+        <Stack.Screen options={{ title: 'Health Guideline' }} />
+        <Ionicons name="document-outline" size={48} color="#9CA3AF" />
+        <Text className="text-gray-700 text-base font-medium mt-3 text-center">
+          {errorMsg ? 'Could not load guideline' : 'This guideline has been removed'}
+        </Text>
+        {errorMsg ? <Text className="text-xs text-red-500 mt-2 text-center">{errorMsg}</Text> : null}
       </View>
     );
   }

@@ -17,7 +17,6 @@ export default function AnnouncementDetailView({ id }: { id: string }) {
         .select('*')
         .eq('id', id)
         .maybeSingle();
-      console.log('[announcement detail]', { id, result, error });
       if (error) setErrorMsg(error.message);
       setData(result);
       setLoading(false);
@@ -36,8 +35,11 @@ export default function AnnouncementDetailView({ id }: { id: string }) {
   if (!data) {
     return (
       <View className="flex-1 items-center justify-center px-6">
-        <Text className="text-gray-500 text-center">Announcement not found</Text>
-        <Text className="text-xs text-gray-400 mt-2 text-center">id: {id}</Text>
+        <Stack.Screen options={{ title: 'Announcement' }} />
+        <Ionicons name="document-outline" size={48} color="#9CA3AF" />
+        <Text className="text-gray-700 text-base font-medium mt-3 text-center">
+          {errorMsg ? 'Could not load announcement' : 'This announcement has been removed'}
+        </Text>
         {errorMsg ? <Text className="text-xs text-red-500 mt-2 text-center">{errorMsg}</Text> : null}
       </View>
     );
