@@ -1,4 +1,6 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
+
 
 export default function HomeStackLayout() {
   return (
@@ -7,7 +9,9 @@ export default function HomeStackLayout() {
         headerStyle: { backgroundColor: '#2E7D32' },
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
+        headerRight: () => <NotificationBell />,
       }}
+
     >
       <Stack.Screen 
         name="index" 

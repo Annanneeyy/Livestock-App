@@ -12,21 +12,33 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields.');
+      setError('Please fill in all fields.');
       return;
     }
     setLoading(true);
+    setError(null);
     try {
       await signIn(email.trim(), password);
-    } catch (error: any) {
-      Alert.alert('Login Failed', error.message || 'An error occurred.');
+    } catch (err: any) {
+      console.error('Login error:', err);
+      const message = err.message || 'An error occurred.';
+      setError(message === 'Invalid login credentials' 
+        ? 'Invalid email or password. Please try again.' 
+        : message);
+      
+      if (Platform.OS !== 'web') {
+        Alert.alert('Login Failed', message);
+      }
     } finally {
       setLoading(false);
     }
   };
+
 
   return (
     <KeyboardAvoidingView
@@ -58,8 +70,12 @@ export default function LoginScreen() {
               className="border border-gray-300 rounded-lg px-4 py-3 text-base"
               placeholder="Enter your email"
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => {
+                setEmail(text);
+                setError(null);
+              }}
               autoCapitalize="none"
+
               keyboardType="email-address"
               textContentType="emailAddress"
             />
@@ -71,8 +87,12 @@ export default function LoginScreen() {
               className="border border-gray-300 rounded-lg px-4 py-3 text-base"
               placeholder="Enter your password"
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => {
+                setPassword(text);
+                setError(null);
+              }}
               secureTextEntry
+
               textContentType="password"
             />
             <TouchableOpacity 
@@ -83,7 +103,16 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
 
+          {error && (
+            <View className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <Text className="text-red-600 text-sm text-center font-medium">
+                {error}
+              </Text>
+            </View>
+          )}
+
           <TouchableOpacity
+
             className={`rounded-lg py-4 items-center ${loading ? 'bg-green-400' : 'bg-green-700'}`}
             onPress={handleLogin}
             disabled={loading}

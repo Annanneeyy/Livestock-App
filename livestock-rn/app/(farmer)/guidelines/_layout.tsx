@@ -1,4 +1,6 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
+
 
 export default function GuidelinesLayout() {
   return (
@@ -8,7 +10,9 @@ export default function GuidelinesLayout() {
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
         headerBackTitleVisible: false,
+        headerRight: () => <NotificationBell />,
       }}
+
     >
       <Stack.Screen name="index" options={{ title: 'Guidelines' }} />
       <Stack.Screen name="health" options={{ headerShown: false }} />

@@ -1,4 +1,6 @@
 import { Stack } from 'expo-router';
+import NotificationBell from '../../../components/NotificationBell';
+
 
 export default function MarketplaceLayout() {
   return (
@@ -9,7 +11,9 @@ export default function MarketplaceLayout() {
         headerTintColor: '#fff',
         headerTitleStyle: { fontWeight: 'bold' },
         headerBackTitle: 'Back',
+        headerRight: () => <NotificationBell />,
       }}
+
     >
       <Stack.Screen 
         name="index" 
