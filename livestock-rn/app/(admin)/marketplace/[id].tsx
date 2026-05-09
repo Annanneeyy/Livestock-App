@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator, Linking, Platform } from 'react-native';
+
 import { useLocalSearchParams, useRouter, Stack, useNavigation } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useLivestockDetail, deleteLivestock, markAsSold } from '../../../lib/hooks/useLivestock';
@@ -14,6 +15,31 @@ export default function PostDetailScreen() {
   const { user, profile } = useAuth();
   const { data, comments, loading, refetch } = useLivestockDetail(id!);
   const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
+
+  const handleGetDirections = () => {
+    if (data?.latitude && data?.longitude) {
+      const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+      const latLng = `${data.latitude},${data.longitude}`;
+      const label = data.name || 'Live Swine';
+      const url = Platform.select({
+        ios: `${scheme}${label}@${latLng}`,
+        android: `${scheme}${latLng}(${label})`,
+        web: `https://www.google.com/maps/search/?api=1&query=${latLng}`
+      });
+
+      if (url) {
+        Linking.canOpenURL(url).then((supported) => {
+          if (supported) {
+            Linking.openURL(url);
+          } else {
+            Alert.alert('Error', 'Map application is not available.');
+          }
+        });
+      }
+    } else {
+      Alert.alert('Location not available', 'No coordinates found for this post.');
+    }
+  };
 
   const handleBack = () => {
     if (navigation.canGoBack()) {
@@ -134,11 +160,25 @@ export default function PostDetailScreen() {
 
         {/* Location */}
         {data.location_text && (
-          <View className="flex-row items-center mb-4">
-            <Ionicons name="location" size={16} color="#4ade80" />
-            <Text className="text-sm text-gray-600 dark:text-gray-400 ml-1">{data.location_text}</Text>
+          <View className="mb-4">
+            <View className="flex-row items-center">
+              <Ionicons name="location" size={16} color="#4ade80" />
+              <Text className="text-sm text-gray-600 dark:text-gray-400 ml-1 flex-1">{data.location_text}</Text>
+            </View>
+            {data.latitude && data.longitude && (
+              <TouchableOpacity
+                className="flex-row items-center mt-2 bg-gray-50 dark:bg-gray-800 self-start px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700"
+                onPress={handleGetDirections}
+              >
+                <Ionicons name="navigate-circle" size={18} color="#2E7D32" />
+                <Text className="text-sm font-semibold text-green-800 dark:text-green-400 ml-1.5">
+                  Get Directions
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
+
 
         {/* Action Buttons */}
         {!isOwner && user && (

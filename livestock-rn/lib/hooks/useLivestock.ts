@@ -9,7 +9,9 @@ export function useLivestockList(filters?: {
   category?: string;
   sellerId?: string;
   search?: string;
+  availableOnly?: boolean;
 }) {
+
   const [data, setData] = useState<Livestock[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,6 +40,10 @@ export function useLivestockList(filters?: {
         `name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
       );
     }
+    if (filters?.availableOnly) {
+      query = query.eq('is_available', true);
+    }
+
 
     const { data: result, error: err } = await query;
 
@@ -47,7 +53,8 @@ export function useLivestockList(filters?: {
       setData((result as Livestock[]) || []);
     }
     setLoading(false);
-  }, [filters?.category, filters?.sellerId, filters?.search]);
+  }, [filters?.category, filters?.sellerId, filters?.search, filters?.availableOnly]);
+
 
   useEffect(() => {
     fetch();

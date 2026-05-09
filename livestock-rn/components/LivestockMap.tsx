@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, DeviceEventEmitter } from 'react-native';
+import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, Image, DeviceEventEmitter, Linking, Platform } from 'react-native';
+
 import MapView, { Marker, Callout, UrlTile, PROVIDER_DEFAULT } from './NativeMap';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -69,6 +70,24 @@ export default function LivestockMap() {
       });
     });
   }, [router, rolePath]);
+
+  const handleGetDirections = (item: Livestock) => {
+    if (item.latitude && item.longitude) {
+      const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+      const latLng = `${item.latitude},${item.longitude}`;
+      const label = item.name || 'Live Swine';
+      const url = Platform.select({
+        ios: `${scheme}${label}@${latLng}`,
+        android: `${scheme}${latLng}(${label})`,
+        web: `https://www.google.com/maps/search/?api=1&query=${latLng}`
+      });
+
+      if (url) {
+        Linking.openURL(url);
+      }
+    }
+  };
+
 
   const fetchListings = useCallback(async () => {
     const { data, error } = await supabase
@@ -255,10 +274,20 @@ export default function LivestockMap() {
                 <Text className="text-lg font-bold text-green-700">
                   ₱{Number(selectedItem.price).toLocaleString()}
                 </Text>
-                <View className="bg-green-700 rounded-full px-4 py-1.5 shadow-sm">
-                  <Text className="text-white text-xs font-bold uppercase tracking-wider">Details</Text>
+                <View className="flex-row gap-2">
+                  <TouchableOpacity 
+                    onPress={() => handleGetDirections(selectedItem)}
+                    className="bg-gray-100 dark:bg-gray-700 rounded-full px-3 py-1.5 border border-gray-200 dark:border-gray-600 flex-row items-center"
+                  >
+                    <Ionicons name="navigate" size={14} color="#2E7D32" />
+                    <Text className="text-green-800 dark:text-green-400 text-xs font-bold ml-1">Go</Text>
+                  </TouchableOpacity>
+                  <View className="bg-green-700 rounded-full px-4 py-1.5 shadow-sm">
+                    <Text className="text-white text-xs font-bold uppercase tracking-wider">Details</Text>
+                  </View>
                 </View>
               </View>
+
             </View>
           </TouchableOpacity>
         </View>

@@ -19,6 +19,8 @@ export default function MarketplaceScreen() {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [myPostsOnly, setMyPostsOnly] = useState(false);
+  const [hideSold, setHideSold] = useState(false);
+
 
   const { profile } = useAuth();
   const rolePath = profile?.role === 'admin' ? '(admin)' : '(farmer)';
@@ -27,7 +29,9 @@ export default function MarketplaceScreen() {
     category: selectedCategory === 'All' ? undefined : selectedCategory,
     sellerId: myPostsOnly ? user?.id : undefined,
     search: search.trim() || undefined,
-  }), [selectedCategory, myPostsOnly, search, user?.id]);
+    availableOnly: hideSold,
+  }), [selectedCategory, myPostsOnly, search, user?.id, hideSold]);
+
 
   const { data, loading, refetch } = useLivestockList(filters);
 
@@ -106,7 +110,20 @@ export default function MarketplaceScreen() {
           />
           <Text className="ml-1 text-sm text-gray-600">My Posts</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          className="flex-row items-center ml-4"
+          onPress={() => setHideSold(!hideSold)}
+        >
+          <Ionicons
+            name={hideSold ? 'eye-off' : 'eye'}
+            size={20}
+            color={hideSold ? '#2E7D32' : '#9CA3AF'}
+          />
+          <Text className="ml-1 text-sm text-gray-600">Hide Sold</Text>
+        </TouchableOpacity>
       </View>
+
 
       {/* Listing */}
       {loading ? (

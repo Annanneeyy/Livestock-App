@@ -166,4 +166,5 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
 
 ---
 
-*Document updated on 2026-05-09*
+*Document updated on 2026-05-09 (v1.1.0)*
+
