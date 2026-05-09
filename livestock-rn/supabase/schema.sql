@@ -693,3 +693,37 @@ CREATE POLICY "chat_images_select" ON storage.objects
 
 CREATE POLICY "chat_images_insert" ON storage.objects
   FOR INSERT WITH CHECK (bucket_id = 'chat-images' AND auth.role() = 'authenticated');
+
+-- ============================================
+-- ADMIN ROLE MANAGEMENT RPC
+-- ============================================
+-- Allows administrators to manage user roles securely.
+-- This bypasses RLS for the specific update operation while maintaining strict access control.
+CREATE OR REPLACE FUNCTION public.update_user_role(target_user_id UUID, new_role TEXT)
+RETURNS VOID AS $$
+BEGIN
+  -- 1. Security Check: Ensure the caller is an admin
+  IF NOT EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() 
+    AND role = 'admin'
+  ) THEN
+    RAISE EXCEPTION 'Unauthorized: Only administrators can change user roles.';
+  END IF;
+
+  -- 2. Validate the new role
+  IF new_role NOT IN ('farmer', 'admin') THEN
+    RAISE EXCEPTION 'Invalid role: %', new_role;
+  END IF;
+
+  -- 3. Perform the update
+  UPDATE public.profiles
+  SET role = new_role
+  WHERE id = target_user_id;
+
+  -- 4. Verify update
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'User not found.';
+  END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;

@@ -162,7 +162,8 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
   - **Email Rate Limit Exceeded**: This occurs when too many signup/reset attempts happen in a short time. Increase the limit in the Supabase Dashboard (Auth > Settings > Rate Limits) or disable "Confirm email" for testing.
   - **Password Reset Link Not Working**: We have switched to **OTP-based reset**. Ensure your Supabase Email Template includes `{{ .Token }}`.
 - **Realtime**: If chat or notifications are not updating instantly, ensure "Realtime" is enabled for the `chats`, `messages`, and `notifications` tables in the Supabase Dashboard under **Database** > **Replication**.
+- **Admin Management**: If role updates fail, ensure you have run the `update_user_role` function found at the end of `schema.sql` in your Supabase SQL Editor.
 
 ---
 
-*Document updated on 2026-05-04*
+*Document updated on 2026-05-09*
