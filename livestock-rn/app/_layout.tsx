@@ -1,23 +1,23 @@
 import '../global.css';
 import '../lib/i18n';
 import { useEffect } from 'react';
-import { Slot, useRouter, useSegments } from 'expo-router';
+import { Slot, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import { ActivityIndicator, View, BackHandler, ToastAndroid, Platform } from 'react-native';
 import { useAuth } from '../lib/hooks/useAuth';
 import { useTheme } from '../lib/hooks/useTheme';
 
-function AuthGate() {
+export default function RootLayout() {
   const { session, profile, loading } = useAuth();
   const { isLoaded: themeLoaded } = useTheme();
   const segments = useSegments();
   const router = useRouter();
+  const navigationState = useRootNavigationState();
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     
     let backCount = 0;
     const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-      // If we can go back within the stack, don't trigger the exit warning
       if (router.canGoBack()) {
         router.back();
         return true;
@@ -40,55 +40,54 @@ function AuthGate() {
   }, [router]);
 
   useEffect(() => {
-    if (loading) return;
+    if (loading || !navigationState?.key) return;
 
-    const inAuthGroup = segments[0] === '(auth)';
+    // Small delay to ensure the navigator is fully ready
+    const timeout = setTimeout(() => {
+      const inAuthGroup = segments[0] === '(auth)';
 
-    if (!session) {
-      // Not signed in — redirect to login
-      if (!inAuthGroup) {
-        router.replace('/(auth)/login');
-      }
-    } else if (session && !session.user.email_confirmed_at) {
-      // Signed in but email not verified
-      // EXCEPT if we are on reset-password (which can happen after clicking a reset link)
-      if (segments[1] !== 'reset-password') {
-        router.replace('/(auth)/verify-email');
-      }
-    } else if (profile) {
-      // Signed in and verified — route by role
-      const role = profile.role?.toLowerCase();
-      const inFarmerGroup = segments[0] === '(farmer)';
-      const inAdminGroup = segments[0] === '(admin)';
-      
-      // Don't redirect if we are on reset-password or forgot-password
-      if (segments[1] === 'reset-password' || segments[1] === 'forgot-password') {
-        return;
-      }
-
-      if (role === 'admin') {
-        if (!inAdminGroup) {
-          router.replace('/(admin)/map');
+      if (!session) {
+        if (!inAuthGroup) {
+          router.replace('/(auth)/login');
         }
-      } else {
-        if (!inFarmerGroup) {
-          router.replace('/(farmer)/home');
+      } else if (session && !session.user.email_confirmed_at) {
+        if (segments[1] !== 'reset-password') {
+          router.replace('/(auth)/verify-email');
+        }
+      } else if (profile) {
+        const role = profile.role?.toLowerCase();
+        const inFarmerGroup = segments[0] === '(farmer)';
+        const inAdminGroup = segments[0] === '(admin)';
+        
+        if (segments[1] === 'reset-password' || segments[1] === 'forgot-password') {
+          return;
+        }
+
+        if (role === 'admin') {
+          if (!inAdminGroup) {
+            router.replace('/(admin)/map');
+          }
+        } else {
+          if (!inFarmerGroup) {
+            router.replace('/(farmer)/home');
+          }
         }
       }
-    }
-  }, [session, profile, loading, segments]);
+    }, 1);
 
-  if (loading || !themeLoaded) {
-    return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#2E7D32" />
-      </View>
-    );
-  }
+    return () => clearTimeout(timeout);
+  }, [session, profile, loading, segments, navigationState?.key]);
 
-  return <Slot />;
-}
-
-export default function RootLayout() {
-  return <AuthGate />;
+  return (
+    <>
+      <Slot />
+      {(loading || !themeLoaded) && (
+        <View 
+          className="absolute inset-0 items-center justify-center bg-white z-50"
+        >
+          <ActivityIndicator size="large" color="#2E7D32" />
+        </View>
+      )}
+    </>
+  );
 }

@@ -20,7 +20,8 @@ const initI18n = async () => {
   
   if (!savedLanguage) {
     // Try to match device language or fallback to English
-    const deviceLanguage = Localization.getLocales()[0].languageCode;
+    const locales = Localization.getLocales();
+    const deviceLanguage = locales && locales.length > 0 ? locales[0].languageCode : 'en';
     savedLanguage = resources[deviceLanguage as keyof typeof resources] ? deviceLanguage : 'en';
   }
 

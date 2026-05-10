@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator, Pressable, FlatList,
+  Platform, ScrollView, ActivityIndicator, Pressable, FlatList, Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -160,55 +160,61 @@ export default function SignUpScreen() {
             />
           </View>
 
-          <View className="mb-4 z-10">
+          <View className="mb-4">
             <Text className="text-sm font-medium text-gray-700 mb-1">Barangay</Text>
             <TouchableOpacity
-              onPress={() => setShowBarangayDropdown(!showBarangayDropdown)}
+              onPress={() => setShowBarangayDropdown(true)}
               className="border border-gray-300 rounded-lg px-4 py-3 bg-white flex-row justify-between items-center"
             >
               <Text className={barangay ? 'text-gray-900' : 'text-gray-400'}>
                 {barangay || 'Select Barangay'}
               </Text>
-              <Ionicons name={showBarangayDropdown ? "chevron-up" : "chevron-down"} size={20} color="#6B7280" />
+              <Ionicons name="chevron-down" size={20} color="#6B7280" />
             </TouchableOpacity>
 
-            {showBarangayDropdown && (
-              <View 
-                className="absolute top-[70px] left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden"
-                style={[
-                  Platform.OS === 'android' ? { elevation: 5 } : {},
-                  { maxHeight: 240 }
-                ]}
-              >
-                <ScrollView
-                  nestedScrollEnabled={true}
-                  scrollEnabled={true}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  {BARANGAYS.map((b) => (
-                    <TouchableOpacity
-                      key={b}
-                      className={`px-4 py-3 border-b border-gray-50 ${
-                        barangay === b ? 'bg-green-50' : ''
-                      }`}
-                      onPress={() => {
-                        setBarangay(b);
-                        setShowBarangayDropdown(false);
-                      }}
-                    >
-                      <View className="flex-row justify-between items-center">
-                        <Text className={`text-base ${barangay === b ? 'text-green-800 font-bold' : 'text-gray-700'}`}>
-                          {b}
-                        </Text>
-                        {barangay === b && (
-                          <Ionicons name="checkmark" size={20} color="#2E7D32" />
-                        )}
-                      </View>
+            <Modal
+              visible={showBarangayDropdown}
+              animationType="slide"
+              transparent={true}
+              onRequestClose={() => setShowBarangayDropdown(false)}
+            >
+              <View className="flex-1 justify-end bg-black/50">
+                <View className="bg-white rounded-t-3xl h-[60%]">
+                  <View className="flex-row justify-between items-center px-6 py-4 border-b border-gray-100">
+                    <Text className="text-xl font-bold text-gray-800">Select Barangay</Text>
+                    <TouchableOpacity onPress={() => setShowBarangayDropdown(false)}>
+                      <Ionicons name="close" size={28} color="#374151" />
                     </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                  </View>
+                  
+                  <FlatList
+                    data={BARANGAYS}
+                    keyExtractor={(item) => item}
+                    contentContainerStyle={{ paddingBottom: 40 }}
+                    renderItem={({ item: b }) => (
+                      <TouchableOpacity
+                        className={`px-6 py-4 border-b border-gray-50 ${
+                          barangay === b ? 'bg-green-50' : ''
+                        }`}
+                        onPress={() => {
+                          setBarangay(b);
+                          setShowBarangayDropdown(false);
+                        }}
+                      >
+                        <View className="flex-row justify-between items-center">
+                          <Text className={`text-lg ${barangay === b ? 'text-green-800 font-bold' : 'text-gray-700'}`}>
+                            {b}
+                          </Text>
+                          {barangay === b && (
+                            <Ionicons name="checkmark-circle" size={24} color="#2E7D32" />
+                          )}
+                        </View>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </View>
               </View>
-            )}
+            </Modal>
           </View>
 
           <View className="mb-4">
