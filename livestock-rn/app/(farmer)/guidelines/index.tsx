@@ -10,6 +10,22 @@ export default function GuidelinesScreen() {
 
       <TouchableOpacity
         className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100 dark:border-gray-700"
+        onPress={() => router.push('/(farmer)/guidelines/announcements')}
+      >
+        <View className="bg-blue-100 dark:bg-blue-900/30 rounded-lg p-3 mr-4">
+          <Ionicons name="megaphone" size={28} color="#2563EB" />
+        </View>
+        <View className="flex-1">
+          <Text className="text-lg font-semibold text-gray-900 dark:text-white">Announcements</Text>
+          <Text className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+            Latest news, events, and updates
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 flex-row items-center shadow-sm border border-gray-100 dark:border-gray-700"
         onPress={() => router.push('/(farmer)/guidelines/health')}
       >
         <View className="bg-red-100 dark:bg-red-900/30 rounded-lg p-3 mr-4">
@@ -39,6 +55,7 @@ export default function GuidelinesScreen() {
         </View>
         <Ionicons name="chevron-forward" size={20} color="#9CA3AF" />
       </TouchableOpacity>
+
     </View>
   );
 }

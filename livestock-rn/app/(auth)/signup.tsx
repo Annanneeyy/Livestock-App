@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, Alert, KeyboardAvoidingView,
-  Platform, ScrollView, ActivityIndicator, Pressable,
+  Platform, ScrollView, ActivityIndicator, Pressable, FlatList,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,7 +48,7 @@ export default function SignUpScreen() {
     setLoading(true);
     console.log('Validation passed. Starting sign up for:', email);
     try {
-      await signUp(email.trim(), password, {
+      const data = await signUp(email.trim(), password, {
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         gender: gender || undefined,
@@ -56,8 +56,15 @@ export default function SignUpScreen() {
         barangay: barangay || undefined,
       });
       
-      console.log('Sign up successful');
-      const successMsg = 'Registration successful! Please check your email for a verification link before logging in.';
+      console.log('Sign up successful', data?.session ? 'Session created' : 'No session');
+      
+      if (data?.session) {
+        // Automatically signed in by Supabase (email confirmation disabled)
+        // Root layout will handle redirection to home/admin screen
+        return;
+      }
+
+      const successMsg = 'Registration successful!';
       if (Platform.OS === 'web') {
         alert(successMsg);
         router.replace('/(auth)/login');
@@ -166,8 +173,18 @@ export default function SignUpScreen() {
             </TouchableOpacity>
 
             {showBarangayDropdown && (
-              <View className="absolute top-[70px] left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 max-h-60 overflow-hidden">
-                <ScrollView nestedScrollEnabled={true}>
+              <View 
+                className="absolute top-[70px] left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-xl z-50 overflow-hidden"
+                style={[
+                  Platform.OS === 'android' ? { elevation: 5 } : {},
+                  { maxHeight: 240 }
+                ]}
+              >
+                <ScrollView
+                  nestedScrollEnabled={true}
+                  scrollEnabled={true}
+                  keyboardShouldPersistTaps="handled"
+                >
                   {BARANGAYS.map((b) => (
                     <TouchableOpacity
                       key={b}

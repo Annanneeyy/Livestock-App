@@ -9,6 +9,7 @@ export default function AnnouncementsLayout() {
         headerBackTitleVisible: false,
       }}
     >
+      <Stack.Screen name="index" options={{ title: 'Announcements' }} />
       <Stack.Screen name="[id]" options={{ title: 'Announcement' }} />
     </Stack>
   );

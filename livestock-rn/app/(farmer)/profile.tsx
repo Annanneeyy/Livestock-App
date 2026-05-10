@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, Image, TextInput, Alert,
-  ScrollView, ActivityIndicator, Platform,
+  ScrollView, ActivityIndicator, Platform, FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
@@ -189,10 +189,13 @@ export default function ProfileScreen() {
 
               {showBarangayDropdown && (
                 <View className="absolute top-[75px] left-0 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl z-50 max-h-60 overflow-hidden">
-                  <ScrollView nestedScrollEnabled={true}>
-                    {BARANGAYS.map((b) => (
+                  <FlatList
+                    data={BARANGAYS}
+                    keyExtractor={(item) => item}
+                    nestedScrollEnabled={true}
+                    keyboardShouldPersistTaps="handled"
+                    renderItem={({ item: b }) => (
                       <TouchableOpacity
-                        key={b}
                         className={`px-4 py-3 border-b border-gray-50 dark:border-gray-700 ${
                           barangay === b ? 'bg-green-50 dark:bg-green-900/20' : ''
                         }`}
@@ -210,8 +213,8 @@ export default function ProfileScreen() {
                           )}
                         </View>
                       </TouchableOpacity>
-                    ))}
-                  </ScrollView>
+                    )}
+                  />
                 </View>
               )}
             </View>

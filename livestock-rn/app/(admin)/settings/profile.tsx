@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Platform } from 'react-native';
+import { View, Text, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, Image, Platform, FlatList } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../../lib/hooks/useAuth';
 import { supabase } from '../../../lib/supabase';
@@ -179,10 +179,13 @@ export default function ProfileDetailsScreen() {
 
             {showBarangayDropdown && (
               <View className="absolute top-[75px] left-0 right-0 bg-white border border-gray-200 rounded-xl shadow-xl z-50 max-h-60 overflow-hidden">
-                <ScrollView nestedScrollEnabled={true}>
-                  {BARANGAYS.map((b) => (
+                <FlatList
+                  data={BARANGAYS}
+                  keyExtractor={(item) => item}
+                  nestedScrollEnabled={true}
+                  keyboardShouldPersistTaps="handled"
+                  renderItem={({ item: b }) => (
                     <TouchableOpacity
-                      key={b}
                       className={`px-4 py-3 border-b border-gray-50 ${
                         formData.barangay === b ? 'bg-green-50' : ''
                       }`}
@@ -200,8 +203,8 @@ export default function ProfileDetailsScreen() {
                         )}
                       </View>
                     </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                  )}
+                />
               </View>
             )}
           </View>

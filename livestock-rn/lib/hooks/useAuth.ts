@@ -10,75 +10,86 @@ interface AuthState {
   loading: boolean;
 }
 
-export function useAuth() {
-  const [state, setState] = useState<AuthState>({
-    session: null,
-    user: null,
-    profile: null,
-    loading: true,
+let globalState: AuthState = {
+  session: null,
+  user: null,
+  profile: null,
+  loading: true,
+};
+
+let listeners: ((state: AuthState) => void)[] = [];
+let initialized = false;
+
+const notifyListeners = () => {
+  listeners.forEach((l) => l({ ...globalState }));
+};
+
+const fetchProfile = async (userId: string): Promise<Profile | null> => {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching profile:', error.message);
+    return null;
+  }
+
+  if (data) {
+    return {
+      ...data,
+      role: (data.role as string)?.toLowerCase() as Profile['role']
+    } as Profile;
+  }
+  return null;
+};
+
+// Initialize global listener
+if (!initialized && typeof window !== 'undefined') {
+  initialized = true;
+  
+  // Initial session fetch
+  supabase.auth.getSession().then(async ({ data: { session } }) => {
+    if (session?.user) {
+      const profile = await fetchProfile(session.user.id);
+      globalState = { session, user: session.user, profile, loading: false };
+    } else {
+      globalState = { ...globalState, loading: false };
+    }
+    notifyListeners();
   });
 
+  // Listen for changes
+  supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth event:', event);
+    if (event === 'SIGNED_OUT') {
+      globalState = { session: null, user: null, profile: null, loading: false };
+    } else if (session?.user) {
+      const profile = await fetchProfile(session.user.id);
+      globalState = { session, user: session.user, profile, loading: false };
+    } else {
+      globalState = { session: null, user: null, profile: null, loading: false };
+    }
+    notifyListeners();
+  });
+}
+
+export function useAuth() {
+  const [state, setState] = useState<AuthState>(globalState);
+
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
-      if (error) {
-        // If there's an error (like invalid refresh token), just clear state.
-        // Avoid calling signOut() here to prevent potential recursive loops or extra error logs.
-        setState({ session: null, user: null, profile: null, loading: false });
-        return;
-      }
-
-      if (session?.user) {
-        fetchProfile(session.user.id).then((profile) => {
-          setState({ session, user: session.user, profile, loading: false });
-        });
-      } else {
-        setState({ session: null, user: null, profile: null, loading: false });
-      }
-    }).catch(err => {
-      console.error('Unexpected auth error:', err);
-      setState({ session: null, user: null, profile: null, loading: false });
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth event:', event);
-        
-        if (event === 'SIGNED_OUT' || event === 'USER_UPDATED') {
-          setState({ session: null, user: null, profile: null, loading: false });
-        } else if (session?.user) {
-          const profile = await fetchProfile(session.user.id);
-          setState({ session, user: session.user, profile, loading: false });
-        } else {
-          setState({ session: null, user: null, profile: null, loading: false });
-        }
-      }
-    );
-
-    return () => subscription.unsubscribe();
+    const listener = (newState: AuthState) => {
+      setState(newState);
+    };
+    listeners.push(listener);
+    // Sync with current state
+    setState({ ...globalState });
+    
+    return () => {
+      listeners = listeners.filter((l) => l !== listener);
+    };
   }, []);
-
-  const fetchProfile = async (userId: string): Promise<Profile | null> => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-
-    if (error) {
-      console.error('Error fetching profile:', error.message);
-      return null;
-    }
-
-    if (data) {
-      return {
-        ...data,
-        role: (data.role as string)?.toLowerCase() as Profile['role']
-      } as Profile;
-    }
-    return null;
-  };
 
   const signIn = useCallback(async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -100,7 +111,7 @@ export function useAuth() {
       zip_code?: string;
     }
   ) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -118,6 +129,7 @@ export function useAuth() {
       },
     });
     if (error) throw error;
+    return data;
   }, []);
 
   const signOut = useCallback(async () => {
@@ -128,7 +140,8 @@ export function useAuth() {
   const refreshProfile = useCallback(async () => {
     if (!state.user) return;
     const profile = await fetchProfile(state.user.id);
-    setState((prev) => ({ ...prev, profile }));
+    globalState = { ...globalState, profile };
+    notifyListeners();
   }, [state.user]);
 
   const resetPassword = useCallback(async (email: string) => {
@@ -161,3 +174,4 @@ export function useAuth() {
     refreshProfile,
   };
 }
+
