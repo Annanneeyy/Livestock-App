@@ -20,10 +20,11 @@ If you are working in the `livestock-rn` directory, you can use the following co
 - `npm run build:ipa`: Build an iOS IPA (requires EAS and Apple Developer account).
 
 ### Latest Features (May 2026)
+- **Web UI Stability & Hydration Fixes**: Improved initial load reliability on Web by implementing a global `AuthContext` and direct `localStorage` persistence, eliminating the need for manual page refreshes.
 - **Role-Based Admin Management**: Administrators can now manage the admin team by promoting users or revoking access directly within the app via a secure search and role-switching interface.
 - **Radius-Based Map Filtering**: Users can now filter livestock listings within 5km, 10km, 25km, or 50km of their current location.
 - **Unified Map Controls**: Streamlined interface with inline Legend and Radius dropdowns.
 - **Enhanced Web Support**: Custom markers on web now match the native mobile experience using emojis and high-fidelity pins.
 
 ---
-*Last updated: 2026-05-09*
+*Last updated: 2026-05-10*

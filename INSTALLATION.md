@@ -146,6 +146,8 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
 ## 7. Project Structure
 
 - `lib/`: Shared logic and utility functions.
+  - `context/`: Global state providers (e.g., `AuthContext`).
+  - `hooks/`: Reusable hooks (e.g., `useAuth`, `useTheme`).
 - `app/`: Expo Router pages and navigation.
 - `components/`: Reusable UI components.
 - `constants/`: Theme, colors, and configuration.
@@ -155,6 +157,9 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
 
 ## 8. Troubleshooting
 
+- **Web Loading Issues (Stuck on Spinner)**:
+  - If the web app requires a manual refresh to load, ensure that `AuthContext.tsx` is properly wrapping the root layout.
+  - We have implemented **Automatic Retries** for profile fetching and **Direct localStorage** for Web to solve most hydration race conditions.
 - **Apple Developer Team Error**: If you see `You have no team associated with your Apple account`, it means your Apple ID is not enrolled in the paid Apple Developer Program.
 - **Storage Errors**: Ensure that the `avatars`, `livestock-images`, and `chat-images` buckets were created in Supabase (the SQL schema should have done this automatically).
 - **Authentication**: 
@@ -166,5 +171,4 @@ Once the build is complete, you will receive a QR code. For Ad Hoc builds (Inter
 
 ---
 
-*Document updated on 2026-05-09 (v1.1.0)*
-
+*Document updated on 2026-05-10 (v1.2.0)*
